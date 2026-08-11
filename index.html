@@ -474,11 +474,11 @@
             </div>
             <div class="shape-btn" data-shape="cloud">
               <svg viewBox="0 0 26 20"><path d="M6 12a5 5 0 0 1 9-3 4 4 0 0 1 5 5 4 4 0 0 1-4 4H8a4 4 0 0 1-2-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="5" cy="17" r="1.3" fill="currentColor"/><circle cx="2.5" cy="19.3" r="0.8" fill="currentColor"/></svg>
-              <span>Suy nghĩ</span>
+              <span>Đám mây</span>
             </div>
             <div class="shape-btn" data-shape="shout">
               <svg viewBox="0 0 26 20"><path d="M13 1 L15.5 6 L21 3 L18.5 8.5 L25 9 L18.5 11 L21 16.5 L15.5 13.5 L13 19 L10.5 13.5 L5 16.5 L7.5 11 L1 9 L7.5 8.5 L5 3 L10.5 6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-              <span>Hét</span>
+              <span>Gai</span>
             </div>
             <div class="shape-btn" data-shape="custom">
               <svg viewBox="0 0 26 20"><path d="M4 16 L4 12.5 L15.5 1 L19 4.5 L7.5 16 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 16 L2 18.6 L4.8 18 Z" fill="currentColor"/></svg>
@@ -517,7 +517,7 @@
       </details>
 
       <details class="panel-card" id="sectionSpikes">
-        <summary>Gai bóng hét</summary>
+        <summary>Tuỳ chỉnh gai</summary>
         <div class="panel-body">
           <div class="row" id="rowSpikes"><label>Số gai</label><input type="range" id="rangeSpikes" min="12" max="250" value="60"><input type="number" class="val-input" id="valSpikes" value="60"></div>
           <div class="row" id="rowSpikeDepth"><label>Độ dài gai</label><input type="range" id="rangeSpikeDepth" min="10" max="90" value="35"><input type="number" class="val-input" id="valSpikeDepth" value="35"></div>
@@ -544,7 +544,7 @@
           <div class="row" id="rowDashed"><label>Viền nét đứt</label><label class="switch"><input type="checkbox" id="toggleDashed"><span class="switch-track"></span></label></div>
           <div class="row" id="rowDashLen"><label>Độ dài nét</label><input type="range" id="rangeDashLen" min="2" max="60" value="10"><input type="number" class="val-input" id="valDashLen" value="10"></div>
           <div class="row" id="rowDashGap"><label>Khoảng cách</label><input type="range" id="rangeDashGap" min="2" max="60" value="8"><input type="number" class="val-input" id="valDashGap" value="8"></div>
-          <div class="field-hint" id="dashHintShout">Nét đứt chỉ áp dụng cho bầu dục, chữ nhật và suy nghĩ — không dùng cho bóng hét.</div>
+          <div class="field-hint" id="dashHintShout">Nét đứt chỉ áp dụng cho bầu dục, chữ nhật và đám mây — không dùng cho bóng gai.</div>
         </div>
       </details>
     </div>
@@ -1735,7 +1735,7 @@
   });
 
   function labelFor(t){
-    return {oval:'Bầu dục', rect:'Chữ nhật', cloud:'Suy nghĩ', shout:'Hét', custom:'Tự vẽ'}[t] || t;
+    return {oval:'Bầu dục', rect:'Chữ nhật', cloud:'Đám mây', shout:'Gai', custom:'Tự vẽ'}[t] || t;
   }
 
   function updateShapeUI(b){
