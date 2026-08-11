@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bóng Thoại — Speech Bubble Maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void: #131316;
+    --bg-panel: #1c1c21;
+    --bg-panel-alt: #26262d;
+    --bg-panel-alt2: #303039;
+    --line: #38383f;
+    --text-hi: #f3f1ea;
+    --text-lo: #8b8a94;
+    --accent: #5eead4;
+    --accent-dim: #2f5f58;
+    --accent2: #ff6b6b;
+    --radius: 10px;
+    --font-display: 'Archivo Black', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg-void);
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+  .app{
+    display:grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: 56px 1fr;
+    grid-template-areas:
+      "top top"
+      "side main";
+    height:100vh;
+  }
+  .topbar{
+    grid-area: top;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 0 20px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand .mark{
+    width:26px;height:26px;
+    border-radius:50%;
+    background: var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);
+    font-size:13px;
+    color:#0c1413;
+  }
+  .brand h1{
+    font-family:var(--font-display);
+    font-size:14px;
+    letter-spacing:0.5px;
+    margin:0;
+    text-transform:uppercase;
+  }
+  .brand span{
+    font-size:11px;
+    color:var(--text-lo);
+    display:block;
+    margin-top:2px;
+    font-weight:500;
+  }
+  .top-actions{ display:flex; gap:8px; }
+
+  button{
+    font-family:var(--font-body);
+    cursor:pointer;
+    border:none;
+    border-radius: 7px;
+    font-weight:600;
+    font-size:12.5px;
+    transition: all .12s ease;
+  }
+  .btn{
+    background: var(--bg-panel-alt);
+    color: var(--text-hi);
+    padding: 9px 14px;
+    border: 1px solid var(--line);
+  }
+  .btn:hover{ background: var(--bg-panel-alt2); border-color:#4a4a54;}
+  .btn-accent{
+    background: var(--accent);
+    color: #0c1413;
+    padding: 9px 16px;
+  }
+  .btn-accent:hover{ filter:brightness(1.08); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--text-lo);
+    border:1px solid var(--line);
+    padding:9px 12px;
+  }
+  .btn-ghost:hover{ color:var(--text-hi); border-color:#4a4a54; }
+  .btn-danger{ color: var(--accent2); }
+
+  .sidebar{
+    grid-area: side;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--line);
+    overflow-y:auto;
+    padding: 18px 16px 40px;
+  }
+  .sidebar::-webkit-scrollbar{ width:8px; }
+  .sidebar::-webkit-scrollbar-thumb{ background:var(--bg-panel-alt2); border-radius:8px; }
+
+  .section{ margin-bottom: 20px; }
+  .section-label{
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:var(--text-lo);
+    font-weight:700;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .section-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .panel-card{
+    background: var(--bg-panel-alt);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 14px 4px;
+    margin-bottom:14px;
+  }
+  details.panel-card{ padding:0; }
+  details.panel-card > summary{
+    list-style:none;
+    cursor:pointer;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.1px;
+    font-weight:700;
+    color:var(--text-hi);
+  }
+  details.panel-card > summary::-webkit-details-marker{ display:none; }
+  details.panel-card > summary::before{
+    content:"▸";
+    color:var(--accent);
+    font-size:10px;
+    transition:transform .15s ease;
+    flex-shrink:0;
+  }
+  details.panel-card[open] > summary::before{ transform:rotate(90deg); }
+  details.panel-card > summary .sub{
+    font-size:10px; text-transform:none; letter-spacing:0; font-weight:500; color:var(--text-lo);
+  }
+  details.panel-card .panel-body{ padding:2px 14px 14px; }
+  .field-hint{ font-size:10.5px; color:var(--text-lo); line-height:1.5; margin:-4px 0 12px; }
+
+  .shape-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:8px;
+  }
+  .shape-btn{
+    background: var(--bg-panel-alt);
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    padding: 10px 4px 8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    color:var(--text-lo);
+  }
+  .shape-btn svg{ width:26px; height:20px; }
+  .shape-btn span{ font-size:9.5px; font-weight:600; letter-spacing:.2px;}
+  .shape-btn.active{ border-color: var(--accent); color:var(--text-hi); background: var(--accent-dim); }
+  .shape-btn:hover{ border-color:#55555f; }
+
+  .row{ display:flex; align-items:center; margin-bottom:11px; gap:10px;}
+  .row label:not(.switch){ font-size:11.5px; color:var(--text-lo); font-weight:500; width:100px; flex-shrink:0; line-height:1.25;}
+  .row .val{ font-size:11.5px; color:var(--accent); font-weight:600; min-width:34px; text-align:right;}
+  .row .val-input{
+    width:52px; flex-shrink:0; text-align:center;
+    background:var(--bg-panel-alt); border:1px solid var(--line); color:var(--text-hi);
+    border-radius:6px; padding:5px 4px; font-family:var(--font-body); font-size:12px;
+    -moz-appearance:textfield;
+  }
+  .row .val-input::-webkit-outer-spin-button,
+  .row .val-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .row .val-input:focus{ outline:none; border-color:var(--accent); background:var(--bg-panel-alt2); }
+  .row.row-tight label{ width:auto; }
+  input[type=range]{
+    -webkit-appearance:none;
+    flex:1;
+    min-width:0;
+    height:4px;
+    border-radius:3px;
+    background: var(--bg-panel-alt2);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--accent);
+    cursor:pointer;
+    border:2px solid #0c1413;
+  }
+  input[type=number]{
+    width:64px;
+    background:var(--bg-panel-alt);
+    border:1px solid var(--line);
+    color:var(--text-hi);
+    border-radius:6px;
+    padding:6px 8px;
+    font-family:var(--font-body);
+    font-size:12px;
+  }
+  input[type=color]{
+    width:34px; height:28px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:none;
+    padding:2px;
+    cursor:pointer;
+  }
+  .color-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .color-row label{ font-size:12px; color:var(--text-lo); font-weight:500; flex:1;}
+  .color-row .hex{ font-size:11px; color:var(--text-lo); font-family:monospace; width:60px;}
+
+  .toggle-row{ display:flex; gap:8px; }
+
+  .switch{
+    position:relative; display:inline-block;
+    width:40px; height:22px;
+    cursor:pointer; flex-shrink:0;
+    margin-left:auto;
+  }
+  .switch input{ opacity:0; width:0; height:0; position:absolute; }
+  .switch-track{
+    position:absolute; inset:0;
+    background: var(--bg-panel-alt2);
+    border:1px solid var(--line);
+    border-radius:999px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.35);
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .switch-track::before{
+    content:"";
+    position:absolute;
+    width:16px; height:16px;
+    left:3px; top:3px;
+    border-radius:50%;
+    background: linear-gradient(180deg,#a8a7b2,#8b8a94);
+    box-shadow: 0 1px 3px rgba(0,0,0,.5);
+    transition: transform .18s cubic-bezier(.4,0,.2,1), background .18s ease;
+  }
+  .switch:hover .switch-track{ border-color:#55555f; }
+  .switch input:checked + .switch-track{
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.2), 0 0 0 3px rgba(94,234,212,.12);
+  }
+  .switch input:checked + .switch-track::before{
+    transform: translateX(18px);
+    background: linear-gradient(180deg,#7ff2e2,var(--accent));
+  }
+  .switch input:focus-visible + .switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
+  .toggle-btn{
+    flex:1;
+    background: var(--bg-panel-alt);
+    border:1px solid var(--line);
+    padding:8px 4px;
+    border-radius:7px;
+    font-size:11px;
+    color:var(--text-lo);
+  }
+  .toggle-btn.active{ background:var(--accent-dim); border-color:var(--accent); color:var(--text-hi); }
+
+  .bubble-list{ display:flex; flex-direction:column; gap:6px; }
+  .bubble-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background: var(--bg-panel-alt);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    cursor:pointer;
+    font-size:12px;
+  }
+  .bubble-item.active{ border-color:var(--accent); background:var(--accent-dim); }
+  .bubble-item .dot{ width:8px;height:8px;border-radius:50%; background:var(--accent); flex-shrink:0;}
+  .bubble-item .name{ flex:1; }
+  .bubble-item .del{
+    background:none; border:none; color:var(--text-lo);
+    font-size:14px; line-height:1; padding:2px 4px; border-radius:4px;
+  }
+  .bubble-item .del:hover{ color:var(--accent2); background:rgba(255,107,107,.1); }
+  .empty-hint{ font-size:11.5px; color:var(--text-lo); line-height:1.5; padding:10px 2px; }
+
+  .main{
+    grid-area: main;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      linear-gradient(135deg, #101013 25%, transparent 25%) -12px 0/24px 24px,
+      linear-gradient(225deg, #101013 25%, transparent 25%) -12px 0/24px 24px,
+      linear-gradient(315deg, #101013 25%, transparent 25%) 0 0/24px 24px,
+      linear-gradient(45deg, #101013 25%, transparent 25%) 0 0/24px 24px,
+      var(--bg-void);
+    overflow:auto;
+    padding:40px;
+  }
+  .canvas-shell{
+    position:relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 1px var(--line);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .checker{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(45deg, #2a2a30 25%, transparent 25%),
+      linear-gradient(-45deg, #2a2a30 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2a2a30 75%),
+      linear-gradient(-45deg, transparent 75%, #2a2a30 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color:#1f1f24;
+  }
+  canvas#stage{
+    position:relative;
+    display:block;
+    touch-action:none;
+    cursor:default;
+  }
+
+  .floating-hint{
+    position:absolute;
+    bottom:18px; left:50%;
+    transform:translateX(-50%);
+    background: rgba(28,28,33,.92);
+    border:1px solid var(--line);
+    padding:8px 16px;
+    border-radius:20px;
+    font-size:11.5px;
+    color:var(--text-lo);
+    backdrop-filter:blur(6px);
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  .floating-hint b{ color:var(--accent); font-weight:600; }
+
+  .draw-toolbar{
+    position:absolute;
+    top:14px; left:50%;
+    transform:translateX(-50%);
+    display:none;
+    align-items:center;
+    gap:10px;
+    background: rgba(28,28,33,.95);
+    border:1px solid var(--accent);
+    padding:9px 12px;
+    border-radius:10px;
+    font-size:11.5px;
+    color:var(--text-lo);
+    z-index:5;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    max-width: calc(100% - 40px);
+  }
+  .draw-toolbar span{ white-space:nowrap; }
+  .draw-toolbar button{ padding:7px 12px; font-size:11.5px; flex-shrink:0; }
+  .draw-mode-toggle{
+    display:flex; gap:3px;
+    background: var(--bg-panel-alt2);
+    padding:3px;
+    border-radius:8px;
+    flex-shrink:0;
+  }
+  .draw-mode-btn{
+    background:transparent;
+    border:none;
+    color:var(--text-lo);
+    font-size:11px;
+    padding:6px 10px;
+    border-radius:6px;
+    font-weight:600;
+    font-family:var(--font-body);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .draw-mode-btn.active{ background:var(--accent); color:#0c1413; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">気</div>
+      <div>
+        <h1>Bóng Thoại</h1>
+        <span>Speech bubble maker · export PNG trong suốt</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-ghost btn" id="btnReset">Xoá tất cả</button>
+      <button class="btn btn-accent" id="btnExportOne">Export bóng đang chọn</button>
+      <button class="btn btn-accent" id="btnExportAll">Export toàn canvas</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="panel-card">
+      <div class="section-label" style="margin-bottom:8px;">Danh sách bóng thoại</div>
+      <div class="bubble-list" id="bubbleList"></div>
+      <button class="btn" id="btnAdd" style="width:100%;margin-top:10px;margin-bottom:12px;">+ Thêm bóng thoại</button>
+    </div>
+
+    <div id="editPanel">
+      <details class="panel-card" open>
+        <summary>Hình dạng <span class="sub" id="shapeSummary"></span></summary>
+        <div class="panel-body">
+          <div class="shape-grid" id="shapeGrid">
+            <div class="shape-btn" data-shape="oval">
+              <svg viewBox="0 0 26 20"><ellipse cx="13" cy="9" rx="11" ry="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 15 L4 20 L11 15Z" fill="currentColor"/></svg>
+              <span>Bầu dục</span>
+            </div>
+            <div class="shape-btn" data-shape="rect">
+              <svg viewBox="0 0 26 20"><rect x="2" y="2" width="22" height="14" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 15 L4 20 L11 15Z" fill="currentColor"/></svg>
+              <span>Chữ nhật</span>
+            </div>
+            <div class="shape-btn" data-shape="cloud">
+              <svg viewBox="0 0 26 20"><path d="M6 12a5 5 0 0 1 9-3 4 4 0 0 1 5 5 4 4 0 0 1-4 4H8a4 4 0 0 1-2-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="5" cy="17" r="1.3" fill="currentColor"/><circle cx="2.5" cy="19.3" r="0.8" fill="currentColor"/></svg>
+              <span>Suy nghĩ</span>
+            </div>
+            <div class="shape-btn" data-shape="shout">
+              <svg viewBox="0 0 26 20"><path d="M13 1 L15.5 6 L21 3 L18.5 8.5 L25 9 L18.5 11 L21 16.5 L15.5 13.5 L13 19 L10.5 13.5 L5 16.5 L7.5 11 L1 9 L7.5 8.5 L5 3 L10.5 6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              <span>Hét</span>
+            </div>
+            <div class="shape-btn" data-shape="custom">
+              <svg viewBox="0 0 26 20"><path d="M4 16 L4 12.5 L15.5 1 L19 4.5 L7.5 16 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 16 L2 18.6 L4.8 18 Z" fill="currentColor"/></svg>
+              <span>Tự vẽ</span>
+            </div>
+          </div>
+          <div class="field-hint" style="margin-top:10px;">Chọn <b style="color:var(--text-hi)">Tự vẽ</b> rồi click từng điểm trên canvas để tạo hình theo ý bạn. Trong thanh công cụ vẽ, chọn <b style="color:var(--text-hi)">✒️ Bút</b> để đặt điểm neo và bo cong từng cạnh sau khi hoàn tất.</div>
+        </div>
+      </details>
+
+      <details class="panel-card" open>
+        <summary>Kích thước</summary>
+        <div class="panel-body">
+          <div class="row"><label>Bề rộng</label><input type="range" id="rangeRx" min="20" max="400" value="120"><input type="number" class="val-input" id="valRx" value="120"></div>
+          <div class="row"><label>Bề cao</label><input type="range" id="rangeRy" min="20" max="300" value="80"><input type="number" class="val-input" id="valRy" value="80"></div>
+          <div class="row" id="rowCorner"><label>Bo góc</label><input type="range" id="rangeCorner" min="0" max="80" value="18"><input type="number" class="val-input" id="valCorner" value="18"></div>
+        </div>
+      </details>
+
+      <details class="panel-card" id="sectionTail" open>
+        <summary>Đuôi bóng thoại</summary>
+        <div class="panel-body">
+          <div class="row" id="rowTailW"><label>Độ rộng đuôi</label><input type="range" id="rangeTailW" min="0" max="80" value="26"><input type="number" class="val-input" id="valTailW" value="26"></div>
+          <div class="row" id="rowTailInset"><label>Đuôi ăn sâu</label><input type="range" id="rangeTailInset" min="0" max="60" value="16"><input type="number" class="val-input" id="valTailInset" value="16"></div>
+          <div class="row" id="rowTailCurved"><label>Đuôi cong</label><label class="switch"><input type="checkbox" id="toggleTailCurved"><span class="switch-track"></span></label></div>
+          <div class="field-hint">Kéo <b style="color:var(--text-hi)">chấm đỏ</b> trên canvas để chỉnh đầu đuôi, <b style="color:var(--text-hi)">chấm tím</b> để chỉnh gốc đuôi.</div>
+        </div>
+      </details>
+
+      <details class="panel-card" id="sectionSpikes">
+        <summary>Gai bóng hét</summary>
+        <div class="panel-body">
+          <div class="row" id="rowSpikes"><label>Số gai</label><input type="range" id="rangeSpikes" min="12" max="120" value="60"><input type="number" class="val-input" id="valSpikes" value="60"></div>
+          <div class="row" id="rowSpikeDepth"><label>Độ dài gai</label><input type="range" id="rangeSpikeDepth" min="10" max="90" value="35"><input type="number" class="val-input" id="valSpikeDepth" value="35"></div>
+          <div class="row" id="rowSpikeWidth"><label>Độ dày gai</label><input type="range" id="rangeSpikeWidth" min="10" max="70" value="30"><input type="number" class="val-input" id="valSpikeWidth" value="30"></div>
+          <div class="row" id="rowSpikeVariance"><label>Xen kẽ dài/ngắn</label><input type="range" id="rangeSpikeVariance" min="0" max="90" value="45"><input type="number" class="val-input" id="valSpikeVariance" value="45"></div>
+          <div class="row" id="rowValleyCurve"><label>Độ cong đáy</label><input type="range" id="rangeValleyCurve" min="-40" max="90" value="18"><input type="number" class="val-input" id="valValleyCurve" value="18"></div>
+        </div>
+      </details>
+
+      <details class="panel-card" open>
+        <summary>Màu sắc &amp; viền</summary>
+        <div class="panel-body">
+          <div class="color-row">
+            <label>Màu nền</label>
+            <input type="color" id="colorFill" value="#ffffff">
+            <span class="hex" id="hexFill">#ffffff</span>
+          </div>
+          <div class="color-row">
+            <label>Màu viền</label>
+            <input type="color" id="colorStroke" value="#111111">
+            <span class="hex" id="hexStroke">#111111</span>
+          </div>
+          <div class="row"><label>Độ dày viền</label><input type="range" id="rangeStrokeW" min="0" max="16" value="4"><input type="number" class="val-input" id="valStrokeW" value="4"></div>
+          <div class="row" id="rowDashed"><label>Viền nét đứt</label><label class="switch"><input type="checkbox" id="toggleDashed"><span class="switch-track"></span></label></div>
+          <div class="row" id="rowDashLen"><label>Độ dài nét</label><input type="range" id="rangeDashLen" min="2" max="60" value="10"><input type="number" class="val-input" id="valDashLen" value="10"></div>
+          <div class="row" id="rowDashGap"><label>Khoảng cách</label><input type="range" id="rangeDashGap" min="2" max="60" value="8"><input type="number" class="val-input" id="valDashGap" value="8"></div>
+          <div class="field-hint" id="dashHintShout">Nét đứt chỉ áp dụng cho bầu dục, chữ nhật và suy nghĩ — không dùng cho bóng hét.</div>
+        </div>
+      </details>
+    </div>
+
+    <div class="empty-hint" id="emptyHint" style="display:none;">
+      Chưa có bóng thoại nào. Nhấn <b style="color:var(--text-hi)">+ Thêm bóng thoại</b> để bắt đầu, sau đó kéo trong canvas để chỉnh vị trí và đuôi.
+    </div>
+
+    <details class="panel-card" open>
+      <summary>Canvas &amp; xuất ảnh</summary>
+      <div class="panel-body">
+        <div class="row"><label>Rộng (px)</label><input type="number" class="val-input" style="width:70px" id="canvasW" value="900"></div>
+        <div class="row"><label>Cao (px)</label><input type="number" class="val-input" style="width:70px" id="canvasH" value="700"></div>
+        <div class="row"><label>Tỉ lệ export</label></div>
+        <div class="toggle-row" style="margin-bottom:14px;">
+          <div class="toggle-btn active" data-scale="1">1x</div>
+          <div class="toggle-btn" data-scale="2">2x</div>
+          <div class="toggle-btn" data-scale="3">3x</div>
+          <div class="toggle-btn" data-scale="4">4x</div>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <div class="main">
+    <div class="draw-toolbar" id="drawToolbar">
+      <div class="draw-mode-toggle">
+        <button type="button" class="draw-mode-btn active" data-mode="point">✏️ Vẽ điểm</button>
+        <button type="button" class="draw-mode-btn" data-mode="freehand">🖊️ Vẽ tự do</button>
+        <button type="button" class="draw-mode-btn" data-mode="pen">✒️ Bút (bo cong)</button>
+      </div>
+      <span id="drawHintText">Click để đặt điểm · click gần điểm đầu hoặc double‑click/Enter để hoàn tất · Esc để huỷ</span>
+      <button class="btn btn-accent" id="btnDrawFinish">Hoàn tất</button>
+      <button class="btn btn-ghost" id="btnDrawCancel">Huỷ</button>
+    </div>
+    <div class="canvas-shell">
+      <div class="checker"></div>
+      <canvas id="stage" width="900" height="700"></canvas>
+    </div>
+    <div class="floating-hint">Kéo <b>tâm</b> để di chuyển · <b>chấm đỏ</b> đỉnh đuôi · <b>chấm tím</b> gốc đuôi · <b>chấm xanh dương</b> chỉnh cong (đuôi / cạnh bút) · <b>chấm vàng</b> cong đáy gai · <b>chấm xanh lá</b> điểm neo (bút)</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const ctx = stage.getContext('2d');
+
+  let bubbles = [];
+  let selectedId = null;
+  let uid = 1;
+  let exportScale = 1;
+
+  // custom freehand-shape drawing state
+  let drawMode = false;
+  let drawInputMode = 'point'; // 'point' | 'freehand'
+  let drawPoints = [];
+  let drawMouse = null;
+  let freehandRaw = [];
+  let freehandActive = false;
+
+  const HANDLE_R = 7;
+
+  function newBubble(){
+    const cx = stage.width/2 + (Math.random()*60-30);
+    const cy = stage.height/2 + (Math.random()*60-30);
+    const rx = 120, ry = 80;
+    const tailX = cx - 40, tailY = cy + ry_default();
+    const baseGuess = ellipseEdgePoint(cx, cy, rx, ry, tailX, tailY);
+    return {
+      id: uid++,
+      type: 'oval',
+      cx, cy,
+      rx, ry,
+      tailX, tailY,
+      tailBaseX: baseGuess.x, tailBaseY: baseGuess.y,
+      tailCurved: false,
+      tailCurveX: null, tailCurveY: null,
+      tailW: 26,
+      tailInset: 16,
+      corner: 18,
+      spikes: 60,
+      spikeDepth: 35,
+      spikeWidth: 30,
+      spikeVariance: 45,
+      valleyCurve: 18,
+      fill: '#ffffff',
+      stroke: '#111111',
+      strokeW: 4,
+      strokeDashed: false,
+      dashLen: 10,
+      dashGap: 8
+    };
+  }
+  function ry_default(){ return 80+90; }
+
+  function selected(){ return bubbles.find(b => b.id === selectedId); }
+
+  // ---------- geometry helpers ----------
+  function ellipseEdgePoint(cx, cy, rx, ry, tx, ty){
+    const dx = (tx-cx)/rx, dy = (ty-cy)/ry;
+    let ang = Math.atan2(dy, dx);
+    if (dx===0 && dy===0) ang = Math.PI/2;
+    return { x: cx + rx*Math.cos(ang), y: cy + ry*Math.sin(ang), ang };
+  }
+  function rectEdgePoint(cx, cy, hw, hh, r, tx, ty){
+    // approximate via ellipse method against half-extents, then clamp to rounded rect boundary roughly
+    const p = ellipseEdgePoint(cx, cy, hw, hh, tx, ty);
+    // clamp point onto rect border
+    let x = Math.max(cx-hw, Math.min(cx+hw, p.x));
+    let y = Math.max(cy-hh, Math.min(cy+hh, p.y));
+    return { x, y, ang: p.ang };
+  }
+
+  function ellipsePoint(cx, cy, rx, ry, ang){
+    return { x: cx + rx*Math.cos(ang), y: cy + ry*Math.sin(ang) };
+  }
+  // Moves a boundary point toward the bubble center by `amount` px, so a tail
+  // base sits embedded inside the body — no seam/gap at any drag angle.
+  function pullInward(cx, cy, x, y, amount){
+    const dx = x-cx, dy = y-cy;
+    const len = Math.hypot(dx,dy) || 1;
+    return { x: x - (dx/len)*amount, y: y - (dy/len)*amount };
+  }
+
+  function drawTailTriangle(path, base1, base2, tip){
+    path.moveTo(base1.x, base1.y);
+    path.lineTo(tip.x, tip.y);
+    path.lineTo(base2.x, base2.y);
+  }
+
+  function perpOffset(cx, cy, edgeX, edgeY, width){
+    const dx = edgeX-cx, dy = edgeY-cy;
+    const len = Math.hypot(dx,dy) || 1;
+    const nx = -dy/len, ny = dx/len;
+    return {
+      a: { x: edgeX + nx*width/2, y: edgeY + ny*width/2 },
+      b: { x: edgeX - nx*width/2, y: edgeY - ny*width/2 }
+    };
+  }
+
+  // Dense point samples of a body's outline, used to splice the tail in
+  // as ONE continuous path (see buildBodyWithTailPath) so the fill and the
+  // stroke both merge seamlessly at the join — no leftover boundary line
+  // crossing behind the tail.
+  function ellipseOutlinePoints(cx, cy, rx, ry, steps){
+    const pts = [];
+    for (let i=0;i<steps;i++){
+      pts.push(ellipsePoint(cx, cy, rx, ry, (i/steps)*Math.PI*2));
+    }
+    return pts;
+  }
+  function roundRectOutlinePoints(cx, cy, hw, hh, r){
+    r = Math.max(0, Math.min(r, hw, hh));
+    const pts = [];
+    const edgeN = 22, cornerN = 14;
+    function addLine(x1,y1,x2,y2,n){
+      for (let i=0;i<n;i++){ const t=i/n; pts.push({x:x1+(x2-x1)*t, y:y1+(y2-y1)*t}); }
+    }
+    function addArc(acx,acy,ar,a0,a1,n){
+      for (let i=0;i<n;i++){ const t=i/n; const a=a0+(a1-a0)*t; pts.push({x:acx+ar*Math.cos(a), y:acy+ar*Math.sin(a)}); }
+    }
+    const left=cx-hw, right=cx+hw, top=cy-hh, bottom=cy+hh;
+    addLine(left+r, top, right-r, top, edgeN);
+    addArc(right-r, top+r, r, -Math.PI/2, 0, cornerN);
+    addLine(right, top+r, right, bottom-r, edgeN);
+    addArc(right-r, bottom-r, r, 0, Math.PI/2, cornerN);
+    addLine(right-r, bottom, left+r, bottom, edgeN);
+    addArc(left+r, bottom-r, r, Math.PI/2, Math.PI, cornerN);
+    addLine(left, bottom-r, left, top+r, edgeN);
+    addArc(left+r, top+r, r, Math.PI, Math.PI*1.5, cornerN);
+    return pts;
+  }
+  // Traces the outline the LONG way around the tail attachment, then draws
+  // the two tail edges (straight or curved), then closePath() — a single
+  // unbroken loop so the stroke never doubles up at the seam.
+  // baseX/baseY: where along the body outline the tail attaches (its own
+  // draggable anchor, independent of the tip).
+  // tipX/tipY: the point of the tail.
+  // curved + curveX/curveY: optional single mid-anchor that bows both tail
+  // edges into a matching curve instead of a straight triangle.
+  function buildBodyWithTailPath(p, outline, baseX, baseY, tipX, tipY, tailW, curved, curveX, curveY){
+    const n = outline.length;
+    let bestI = 0, bestD = Infinity;
+    for (let i=0;i<n;i++){
+      const dx=outline[i].x-baseX, dy=outline[i].y-baseY;
+      const d = dx*dx+dy*dy;
+      if (d<bestD){ bestD=d; bestI=i; }
+    }
+    function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+    function findBound(dir){
+      let i=bestI, acc=0, prev=outline[bestI], steps=0;
+      while (acc < tailW/2 && steps < n*0.45){
+        const ni = (i+dir+n)%n;
+        acc += dist(prev, outline[ni]);
+        prev = outline[ni];
+        i = ni;
+        steps++;
+      }
+      return i;
+    }
+    const iLeft = findBound(-1);
+    const iRight = findBound(1);
+    const start = outline[iRight];
+    p.moveTo(start.x, start.y);
+    let i = iRight, guard = 0;
+    do {
+      i = (i+1)%n;
+      p.lineTo(outline[i].x, outline[i].y);
+      guard++;
+    } while (i !== iLeft && guard < n+2);
+
+    const left = outline[iLeft], right = outline[iRight];
+    if (curved && curveX!=null && curveY!=null){
+      // Both edges bow toward the SAME control point, so they read as one
+      // simple 2D curve converging on the tip — not two independently
+      // skewed curves (which is what caused the earlier "twisted" look).
+      p.quadraticCurveTo(curveX, curveY, tipX, tipY);
+      p.quadraticCurveTo(curveX, curveY, right.x, right.y);
+    } else {
+      p.lineTo(tipX, tipY);
+    }
+    p.closePath();
+  }
+
+  // Keeps the draggable curve anchor within a safe zone relative to the
+  // tail's base→tip axis, so the two bowed edges always converge cleanly
+  // at the tip instead of ever folding back over themselves.
+  function clampTailCurveAnchor(b){
+    if (b.tailCurveX==null || b.tailCurveY==null) return;
+    const bx = b.tailBaseX, by = b.tailBaseY;
+    const tx = b.tailX, ty = b.tailY;
+    const dx = tx-bx, dy = ty-by;
+    const len = Math.hypot(dx,dy) || 1;
+    const ux = dx/len, uy = dy/len;
+    const nx = -uy, ny = ux;
+    let cx = b.tailCurveX-bx, cy = b.tailCurveY-by;
+    let t = cx*ux + cy*uy;
+    let s = cx*nx + cy*ny;
+    t = Math.max(len*0.12, Math.min(len*0.88, t));
+    const maxS = len*0.55;
+    s = Math.max(-maxS, Math.min(maxS, s));
+    b.tailCurveX = bx + ux*t + nx*s;
+    b.tailCurveY = by + uy*t + ny*s;
+  }
+
+  // ---------- shape builders ----------
+  function ensureCurvePoint(b){
+    if (b.tailCurveX==null || b.tailCurveY==null){
+      b.tailCurveX = (b.tailBaseX + b.tailX)/2;
+      b.tailCurveY = (b.tailBaseY + b.tailY)/2;
+    }
+    clampTailCurveAnchor(b);
+  }
+  function buildPath(b){
+    const p = new Path2D();
+    if (b.type === 'oval'){
+      if (b.tailW > 0){
+        if (b.tailCurved) ensureCurvePoint(b);
+        const outline = ellipseOutlinePoints(b.cx, b.cy, b.rx, b.ry, 180);
+        buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
+      } else {
+        p.ellipse(b.cx, b.cy, b.rx, b.ry, 0, 0, Math.PI*2);
+      }
+    } else if (b.type === 'rect'){
+      const hw=b.rx, hh=b.ry, r=Math.min(b.corner, hw, hh);
+      if (b.tailW > 0){
+        if (b.tailCurved) ensureCurvePoint(b);
+        const outline = roundRectOutlinePoints(b.cx, b.cy, hw, hh, r);
+        buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
+      } else {
+        roundRectPath(p, b.cx-hw, b.cy-hh, hw*2, hh*2, r);
+      }
+    } else if (b.type === 'cloud'){
+      cloudPath(p, b);
+    } else if (b.type === 'shout'){
+      shoutPath(p, b);
+    } else if (b.type === 'custom'){
+      if (b.customPoints && b.customPoints.length >= 3){
+        if (b.tailW > 0){
+          if (b.tailCurved) ensureCurvePoint(b);
+          const outline = customOutlinePoints(b, 10);
+          buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
+        } else {
+          customPolygonPath(p, b);
+        }
+      }
+    }
+    return p;
+  }
+
+  // ---------- custom (freehand-drawn) shape helpers ----------
+  // b.customPoints holds the shape in UNIT space (offsets from center
+  // divided by rx/ry at the moment it was drawn), so it scales cleanly
+  // whenever rx/ry change via the normal width/height controls.
+  // b.customSmooth (true for freehand-drawn shapes) routes rendering through
+  // a Catmull-Rom spline instead of straight edges — point-click shapes keep
+  // their original sharp-corner polygon behavior untouched.
+  function catmullRomClosedPoints(pts, subdivide){
+    const n = pts.length;
+    const out = [];
+    function P(i){ return pts[((i%n)+n)%n]; }
+    for (let i=0;i<n;i++){
+      const p0=P(i-1), p1=P(i), p2=P(i+1), p3=P(i+2);
+      for (let s=0;s<subdivide;s++){
+        const t=s/subdivide, t2=t*t, t3=t2*t;
+        const x = 0.5*((2*p1.x) + (-p0.x+p2.x)*t + (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2 + (-p0.x+3*p1.x-3*p2.x+p3.x)*t3);
+        const y = 0.5*((2*p1.y) + (-p0.y+p2.y)*t + (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2 + (-p0.y+3*p1.y-3*p2.y+p3.y)*t3);
+        out.push({ x, y });
+      }
+    }
+    return out;
+  }
+  function smoothCustomOutline(b, subdivide){
+    return catmullRomClosedPoints(b.customPoints, subdivide).map(pt=>(
+      { x: b.cx + pt.x*b.rx, y: b.cy + pt.y*b.ry }
+    ));
+  }
+  // Light moving-average pass on a raw freehand stroke to shave off small
+  // hand jitter before it gets resampled into control points.
+  function smoothRawPoints(pts, iterations){
+    let arr = pts;
+    for (let it=0; it<(iterations||1); it++){
+      if (arr.length < 3) break;
+      const out = [arr[0]];
+      for (let i=1;i<arr.length-1;i++){
+        out.push({
+          x: (arr[i-1].x + arr[i].x*2 + arr[i+1].x)/4,
+          y: (arr[i-1].y + arr[i].y*2 + arr[i+1].y)/4
+        });
+      }
+      out.push(arr[arr.length-1]);
+      arr = out;
+    }
+    return arr;
+  }
+  // Reduces a dense freehand stroke (many pointer-move samples) down to a
+  // fixed number of evenly-spaced control points along its arc length, so
+  // the spline through them is smooth instead of tracing every hand tremor.
+  function resampleOpen(pts, count){
+    const n = pts.length;
+    if (n === 0) return [];
+    if (n === 1) return [pts[0]];
+    const segs = [];
+    let total = 0;
+    for (let i=0;i<n-1;i++){
+      const d = Math.hypot(pts[i+1].x-pts[i].x, pts[i+1].y-pts[i].y);
+      segs.push(d); total += d;
+    }
+    if (total === 0) return [pts[0]];
+    const out = [pts[0]];
+    const step = total/(count-1);
+    let idx = 0, acc = 0;
+    for (let k=1;k<count-1;k++){
+      const target = k*step;
+      while (idx < segs.length-1 && acc+segs[idx] < target){ acc += segs[idx]; idx++; }
+      const segLen = segs[idx] || 1;
+      const t = segLen>0 ? (target-acc)/segLen : 0;
+      const a = pts[idx], b2 = pts[idx+1];
+      out.push({ x: a.x+(b2.x-a.x)*t, y: a.y+(b2.y-a.y)*t });
+    }
+    out.push(pts[n-1]);
+    return out;
+  }
+
+  // Converts a unit-space point (as stored in customPoints/customCurves) to
+  // canvas space for the bubble's current cx/cy/rx/ry.
+  function unitToCanvas(b, pt){ return { x: b.cx + pt.x*b.rx, y: b.cy + pt.y*b.ry }; }
+  function canvasToUnit(b, x, y){ return { x: (x-b.cx)/b.rx, y: (y-b.cy)/b.ry }; }
+
+  function customPolygonPath(p, b){
+    const n = b.customPoints.length;
+    if (!n) return;
+    if (b.customSmooth && n >= 3){
+      const pts = smoothCustomOutline(b, 14);
+      pts.forEach((pt,i)=>{ if (i===0) p.moveTo(pt.x,pt.y); else p.lineTo(pt.x,pt.y); });
+      p.closePath();
+      return;
+    }
+    if (b.customPen && n >= 3){
+      const p0 = unitToCanvas(b, b.customPoints[0]);
+      p.moveTo(p0.x, p0.y);
+      for (let i=0;i<n;i++){
+        const next = unitToCanvas(b, b.customPoints[(i+1)%n]);
+        const ctrlUnit = b.customCurves && b.customCurves[i];
+        if (ctrlUnit){
+          const ctrl = unitToCanvas(b, ctrlUnit);
+          p.quadraticCurveTo(ctrl.x, ctrl.y, next.x, next.y);
+        } else {
+          p.lineTo(next.x, next.y);
+        }
+      }
+      p.closePath();
+      return;
+    }
+    for (let i=0;i<n;i++){
+      const pt = b.customPoints[i];
+      const x = b.cx + pt.x*b.rx, y = b.cy + pt.y*b.ry;
+      if (i===0) p.moveTo(x,y); else p.lineTo(x,y);
+    }
+    p.closePath();
+  }
+  // Dense samples along the polygon edge (or smooth spline), in canvas
+  // space — same role as ellipseOutlinePoints/roundRectOutlinePoints, so
+  // custom shapes can splice a tail in via the same buildBodyWithTailPath
+  // routine, matching whichever rendering mode the shape actually uses.
+  function customOutlinePoints(b, subdivide){
+    subdivide = subdivide || 10;
+    if (b.customSmooth && b.customPoints.length >= 3){
+      return smoothCustomOutline(b, subdivide);
+    }
+    const pts = [];
+    const n = b.customPoints.length;
+    if (b.customPen && n >= 3){
+      for (let i=0;i<n;i++){
+        const a = b.customPoints[i], c = b.customPoints[(i+1)%n];
+        const ax = b.cx+a.x*b.rx, ay = b.cy+a.y*b.ry;
+        const cx2 = b.cx+c.x*b.rx, cy2 = b.cy+c.y*b.ry;
+        const ctrlUnit = b.customCurves && b.customCurves[i];
+        if (ctrlUnit){
+          const qx = b.cx+ctrlUnit.x*b.rx, qy = b.cy+ctrlUnit.y*b.ry;
+          for (let s=0;s<subdivide;s++){
+            const t = s/subdivide, mt = 1-t;
+            pts.push({
+              x: mt*mt*ax + 2*mt*t*qx + t*t*cx2,
+              y: mt*mt*ay + 2*mt*t*qy + t*t*cy2
+            });
+          }
+        } else {
+          for (let s=0;s<subdivide;s++){
+            const t = s/subdivide;
+            pts.push({ x: ax+(cx2-ax)*t, y: ay+(cy2-ay)*t });
+          }
+        }
+      }
+      return pts;
+    }
+    for (let i=0;i<n;i++){
+      const a = b.customPoints[i], c = b.customPoints[(i+1)%n];
+      const ax = b.cx+a.x*b.rx, ay = b.cy+a.y*b.ry;
+      const cx2 = b.cx+c.x*b.rx, cy2 = b.cy+c.y*b.ry;
+      for (let s=0;s<subdivide;s++){
+        const t = s/subdivide;
+        pts.push({ x: ax+(cx2-ax)*t, y: ay+(cy2-ay)*t });
+      }
+    }
+    return pts;
+  }
+  // Approximates ellipseEdgePoint()/rectEdgePoint() for an arbitrary polygon:
+  // pick the outline sample whose angle from center best matches the target.
+  function polygonEdgePoint(b, tx, ty){
+    const outline = customOutlinePoints(b, 8);
+    if (!outline.length) return { x:b.cx, y:b.cy };
+    const ang = Math.atan2(ty-b.cy, tx-b.cx);
+    let best = outline[0], bestDiff = Infinity;
+    for (const pt of outline){
+      let a = Math.atan2(pt.y-b.cy, pt.x-b.cx);
+      let diff = Math.abs(a-ang);
+      if (diff > Math.PI) diff = Math.PI*2 - diff;
+      if (diff < bestDiff){ bestDiff = diff; best = pt; }
+    }
+    return best;
+  }
+
+  function roundRectPath(p, x, y, w, h, r){
+    p.moveTo(x+r, y);
+    p.lineTo(x+w-r, y);
+    p.arcTo(x+w, y, x+w, y+r, r);
+    p.lineTo(x+w, y+h-r);
+    p.arcTo(x+w, y+h, x+w-r, y+h, r);
+    p.lineTo(x+r, y+h);
+    p.arcTo(x, y+h, x, y+h-r, r);
+    p.lineTo(x, y+r);
+    p.arcTo(x, y, x+r, y, r);
+    p.closePath();
+  }
+
+  function cloudPath(p, b){
+    // main scalloped ellipse using bumps
+    const bumps = 14;
+    const cx=b.cx, cy=b.cy, rx=b.rx, ry=b.ry;
+    const bumpSize = Math.min(rx,ry)*0.22;
+    let first=null;
+    for (let i=0;i<=bumps;i++){
+      const ang = (i/bumps)*Math.PI*2;
+      const bx = cx+rx*Math.cos(ang);
+      const by = cy+ry*Math.sin(ang);
+      if (i===0){ p.moveTo(bx,by); first={x:bx,y:by}; }
+      const nextAng = ((i+0.5)/bumps)*Math.PI*2;
+      const midx = cx+(rx+bumpSize)*Math.cos(nextAng);
+      const midy = cy+(ry+bumpSize)*Math.sin(nextAng);
+      const endAng = ((i+1)/bumps)*Math.PI*2;
+      const ex = cx+rx*Math.cos(endAng);
+      const ey = cy+ry*Math.sin(endAng);
+      p.quadraticCurveTo(midx, midy, ex, ey);
+    }
+    p.closePath();
+    // trailing circles toward tail
+    const dx = b.tailX-cx, dy = b.tailY-cy;
+    const dist = Math.hypot(dx,dy) || 1;
+    const ux = dx/dist, uy = dy/dist;
+    const rawEdge = ellipseEdgePoint(cx, cy, rx, ry, b.tailX, b.tailY);
+    const edge = pullInward(cx, cy, rawEdge.x, rawEdge.y, b.tailInset||0);
+    let sx = edge.x, sy = edge.y;
+    let stepDist = Math.max(18, Math.min(dist/4, 46));
+    let rad = Math.max(6, b.tailW*0.5);
+    for (let i=0;i<3;i++){
+      sx += ux*stepDist*0.7;
+      sy += uy*stepDist*0.7;
+      rad *= 0.62;
+      if (rad < 2) break;
+      p.moveTo(sx+rad, sy);
+      p.arc(sx, sy, rad, 0, Math.PI*2);
+      stepDist *= 0.9;
+    }
+  }
+
+  function shoutPath(p, b){
+    // Sunburst / shout bubble: continuous base with thin spikes.
+    // - spikeVariance alternates long/short spike length for an organic burst look
+    // - valleyCurve bows the base between spike roots into a curve instead of a
+    //   straight chord (positive = curves inward/concave, negative = bulges out)
+    const cx=b.cx, cy=b.cy, baseRx=b.rx, baseRy=b.ry;
+    const n = Math.max(6, Math.round(b.spikes));
+    const segAngle = (Math.PI*2)/n;
+    const widthRatio = Math.min(0.85, Math.max(0.05, b.spikeWidth/100));
+    const halfBase = (segAngle*widthRatio)/2;
+    const variance = Math.min(0.9, Math.max(0, (b.spikeVariance||0)/100));
+    const curveAmt = b.valleyCurve||0;
+
+    const pts = [];
+    for (let i=0;i<n;i++){
+      const angCenter = i*segAngle;
+      const lenMul = (i%2===0) ? 1 : (1-variance);
+      const len = b.spikeDepth*lenMul;
+      const a1 = angCenter - halfBase;
+      const a2 = angCenter + halfBase;
+      pts.push({
+        p1: ellipsePoint(cx, cy, baseRx, baseRy, a1),
+        tip: ellipsePoint(cx, cy, baseRx+len, baseRy+len, angCenter),
+        p2: ellipsePoint(cx, cy, baseRx, baseRy, a2)
+      });
+    }
+
+    let started = false;
+    for (let i=0;i<n;i++){
+      const cur = pts[i];
+      if (!started){ p.moveTo(cur.p1.x, cur.p1.y); started = true; }
+      p.lineTo(cur.tip.x, cur.tip.y);
+      p.lineTo(cur.p2.x, cur.p2.y);
+      const next = pts[(i+1)%n];
+      if (Math.abs(curveAmt) > 0.01){
+        const mx = (cur.p2.x+next.p1.x)/2, my = (cur.p2.y+next.p1.y)/2;
+        const ctrl = pullInward(cx, cy, mx, my, curveAmt);
+        p.quadraticCurveTo(ctrl.x, ctrl.y, next.p1.x, next.p1.y);
+      } else {
+        p.lineTo(next.p1.x, next.p1.y);
+      }
+    }
+    p.closePath();
+  }
+
+  // Position of the draggable "valley curve" anchor — sits on the first
+  // gap between two spikes so the user can drag it to set curveAmt live.
+  function valleyAnchorPos(b){
+    const n = Math.max(6, Math.round(b.spikes));
+    const segAngle = (Math.PI*2)/n;
+    const ang = segAngle*0.5;
+    const base = ellipsePoint(b.cx, b.cy, b.rx, b.ry, ang);
+    return pullInward(b.cx, b.cy, base.x, base.y, b.valleyCurve||0);
+  }
+
+  // ---------- render ----------
+  // Shared draw routine so the on-canvas preview, "export all", and
+  // "export one" paths always render fill/stroke (incl. dashed borders)
+  // identically — no drift between what you see and what gets exported.
+  const DASH_SHAPES = { oval:true, rect:true, cloud:true, custom:true }; // shout excluded on purpose
+  function drawBubble(octx, b){
+    const path = buildPath(b);
+    octx.fillStyle = b.fill;
+    octx.fill(path);
+    if (b.strokeW > 0){
+      octx.save();
+      if (b.strokeDashed && DASH_SHAPES[b.type]){
+        octx.setLineDash([Math.max(1,b.dashLen||10), Math.max(1,b.dashGap||8)]);
+      } else {
+        octx.setLineDash([]);
+      }
+      octx.strokeStyle = b.stroke;
+      octx.lineWidth = b.strokeW;
+      octx.lineJoin = 'round';
+      octx.stroke(path);
+      octx.restore();
+    }
+  }
+  function render(){
+    ctx.clearRect(0,0,stage.width,stage.height);
+    for (const b of bubbles){
+      drawBubble(ctx, b);
+    }
+    if (drawMode){
+      drawDrawOverlay();
+    } else {
+      const sel = selected();
+      if (sel) drawHandles(sel);
+    }
+  }
+
+  // Live preview while drawing a custom shape.
+  // - point mode: dashed rubber-band polygon + a marker dot per placed
+  //   point (first point highlighted so the user knows where to click to
+  //   auto-close it) — unchanged from before.
+  // - freehand mode: while dragging, trace the raw stroke as a solid line;
+  //   once released, preview the smoothed spline through the resampled
+  //   control points so what you see matches what "Hoàn tất" will keep.
+  function drawDrawOverlay(){
+    ctx.save();
+    if (drawInputMode === 'freehand' && freehandActive && freehandRaw.length){
+      ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(94,234,212,0.9)';
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(freehandRaw[0].x, freehandRaw[0].y);
+      for (let i=1;i<freehandRaw.length;i++) ctx.lineTo(freehandRaw[i].x, freehandRaw[i].y);
+      ctx.stroke();
+    } else if (drawInputMode === 'freehand' && drawPoints.length >= 3){
+      ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(94,234,212,0.9)';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      const curve = catmullRomClosedPoints(drawPoints, 8);
+      ctx.beginPath();
+      ctx.moveTo(curve[0].x, curve[0].y);
+      for (let i=1;i<curve.length;i++) ctx.lineTo(curve[i].x, curve[i].y);
+      ctx.closePath();
+      ctx.stroke();
+    } else if (drawPoints.length){
+      ctx.setLineDash([6,4]);
+      ctx.strokeStyle = 'rgba(94,234,212,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
+      for (let i=1;i<drawPoints.length;i++) ctx.lineTo(drawPoints[i].x, drawPoints[i].y);
+      if (drawMouse) ctx.lineTo(drawMouse.x, drawMouse.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (drawInputMode === 'point' || drawInputMode === 'pen'){
+      drawPoints.forEach((pt,i)=>{
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, i===0 ? 7 : 5, 0, Math.PI*2);
+        ctx.fillStyle = i===0 ? '#ffd166' : '#5eead4';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#0c1413';
+        ctx.stroke();
+      });
+    }
+    ctx.restore();
+  }
+
+  function drawHandles(b){
+    ctx.save();
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = 'rgba(94,234,212,0.8)';
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(b.cx-b.rx, b.cy-b.ry, b.rx*2, b.ry*2);
+    ctx.setLineDash([]);
+
+    // center handle
+    handleDot(b.cx, b.cy, '#5eead4', '#0c1413');
+    // resize handle (bottom-right)
+    handleDot(b.cx+b.rx, b.cy+b.ry, '#5eead4', '#0c1413');
+    // tail handle
+    if (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom'){
+      handleDot(b.tailX, b.tailY, '#ff6b6b', '#2a0d0d');
+    }
+    // tail base anchor (only for the seamless-splice shapes)
+    if (b.type==='oval' || b.type==='rect' || b.type==='custom'){
+      handleDot(b.tailBaseX, b.tailBaseY, '#8b5cf6', '#1c1533');
+      if (b.tailCurved){
+        ensureCurvePoint(b);
+        handleDot(b.tailCurveX, b.tailCurveY, '#60a5fa', '#122238');
+      }
+    }
+    // valley-curve anchor for shout bubbles
+    if (b.type==='shout'){
+      const va = valleyAnchorPos(b);
+      handleDot(va.x, va.y, '#ffd166', '#3a2a05');
+    }
+    // pen-drawn shapes: draggable anchor points + one bend handle per edge
+    if (b.type==='custom' && b.customPen && b.customPoints){
+      const n = b.customPoints.length;
+      for (let i=0;i<n;i++){
+        const c = penCurveHandlePos(b, i);
+        handleDot(c.x, c.y, '#60a5fa', '#122238');
+      }
+      for (let i=0;i<n;i++){
+        const a = unitToCanvas(b, b.customPoints[i]);
+        handleDot(a.x, a.y, '#5eead4', '#0c1413');
+      }
+    }
+    ctx.restore();
+  }
+  // Where the draggable "bend" handle for edge i (point i -> point i+1)
+  // currently sits: the stored control point if the edge has been curved,
+  // otherwise the straight-edge midpoint (so there's always something to grab).
+  function penCurveHandlePos(b, i){
+    const ctrlUnit = b.customCurves && b.customCurves[i];
+    if (ctrlUnit) return unitToCanvas(b, ctrlUnit);
+    const a = b.customPoints[i], c = b.customPoints[(i+1)%b.customPoints.length];
+    return unitToCanvas(b, { x:(a.x+c.x)/2, y:(a.y+c.y)/2 });
+  }
+  function handleDot(x,y, fill, ring){
+    ctx.beginPath();
+    ctx.arc(x,y,HANDLE_R,0,Math.PI*2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = ring;
+    ctx.stroke();
+  }
+
+  // ---------- interaction ----------
+  let drag = null; // {mode:'move'|'resize'|'tail', bubble}
+
+  function canvasCoords(e){
+    const rect = stage.getBoundingClientRect();
+    const scaleX = stage.width/rect.width;
+    const scaleY = stage.height/rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX-rect.left)*scaleX, y: (clientY-rect.top)*scaleY };
+  }
+
+  function hitHandle(b, x, y){
+    if (Math.hypot(x-(b.cx+b.rx), y-(b.cy+b.ry)) < HANDLE_R+5) return 'resize';
+    if ((b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom') && Math.hypot(x-b.tailX, y-b.tailY) < HANDLE_R+6) return 'tail';
+    if (b.type==='oval'||b.type==='rect'||b.type==='custom'){
+      if (Math.hypot(x-b.tailBaseX, y-b.tailBaseY) < HANDLE_R+6) return 'tailBase';
+      if (b.tailCurved){
+        ensureCurvePoint(b);
+        if (Math.hypot(x-b.tailCurveX, y-b.tailCurveY) < HANDLE_R+6) return 'tailCurve';
+      }
+    }
+    if (b.type==='shout'){
+      const va = valleyAnchorPos(b);
+      if (Math.hypot(x-va.x, y-va.y) < HANDLE_R+6) return 'curve';
+    }
+    if (b.type==='custom' && b.customPen && b.customPoints){
+      const n = b.customPoints.length;
+      for (let i=0;i<n;i++){
+        const a = unitToCanvas(b, b.customPoints[i]);
+        if (Math.hypot(x-a.x, y-a.y) < HANDLE_R+6) return 'penAnchor:'+i;
+      }
+      for (let i=0;i<n;i++){
+        const c = penCurveHandlePos(b, i);
+        if (Math.hypot(x-c.x, y-c.y) < HANDLE_R+6) return 'penCurve:'+i;
+      }
+    }
+    if (Math.hypot(x-b.cx, y-b.cy) < HANDLE_R+6) return 'move';
+    return null;
+  }
+  function hitBody(b, x, y){
+    const dx=(x-b.cx)/b.rx, dy=(y-b.cy)/b.ry;
+    return (dx*dx+dy*dy) <= 1.15;
+  }
+
+  stage.addEventListener('pointerdown', (e)=>{
+    const {x,y} = canvasCoords(e);
+    if (drawMode){
+      if (drawInputMode === 'freehand'){
+        freehandActive = true;
+        freehandRaw = [{x,y}];
+        stage.setPointerCapture(e.pointerId);
+        render();
+        return;
+      }
+      if (drawPoints.length>=3 && Math.hypot(x-drawPoints[0].x, y-drawPoints[0].y) < 12){
+        finishDraw(false);
+        return;
+      }
+      drawPoints.push({x,y});
+      render();
+      return;
+    }
+    // check selected bubble handles first
+    const sel = selected();
+    if (sel){
+      const h = hitHandle(sel, x, y);
+      if (h){
+        if (h.startsWith('penAnchor:')){
+          drag = { mode:'penAnchor', idx: parseInt(h.slice(10),10), b:sel };
+        } else if (h.startsWith('penCurve:')){
+          drag = { mode:'penCurve', idx: parseInt(h.slice(9),10), b:sel };
+        } else {
+          drag = {mode:h, b:sel, startX:x, startY:y, ox:sel.cx, oy:sel.cy};
+        }
+        stage.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+    // otherwise try to select a bubble under cursor (topmost)
+    for (let i=bubbles.length-1;i>=0;i--){
+      if (hitBody(bubbles[i], x, y)){
+        selectBubble(bubbles[i].id);
+        drag = {mode:'move', b:bubbles[i], startX:x, startY:y, ox:bubbles[i].cx, oy:bubbles[i].cy};
+        stage.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+  });
+  stage.addEventListener('pointermove', (e)=>{
+    if (drawMode){
+      const {x,y} = canvasCoords(e);
+      if (drawInputMode === 'freehand' && freehandActive){
+        const last = freehandRaw[freehandRaw.length-1];
+        if (!last || Math.hypot(x-last.x, y-last.y) >= 3){
+          freehandRaw.push({x,y});
+        }
+        render();
+        return;
+      }
+      drawMouse = {x,y};
+      render();
+      return;
+    }
+    if (!drag) return;
+    const {x,y} = canvasCoords(e);
+    const b = drag.b;
+    if (drag.mode==='move'){
+      const dx = x-drag.startX, dy = y-drag.startY;
+      const moveX = dx, moveY = dy;
+      b.tailX += (drag.ox+moveX) - b.cx;
+      b.tailY += (drag.oy+moveY) - b.cy;
+      b.tailBaseX += (drag.ox+moveX) - b.cx;
+      b.tailBaseY += (drag.oy+moveY) - b.cy;
+      if (b.tailCurveX!=null){
+        b.tailCurveX += (drag.ox+moveX) - b.cx;
+        b.tailCurveY += (drag.oy+moveY) - b.cy;
+      }
+      b.cx = drag.ox + moveX;
+      b.cy = drag.oy + moveY;
+    } else if (drag.mode==='resize'){
+      b.rx = Math.max(20, x-b.cx);
+      b.ry = Math.max(20, y-b.cy);
+      syncRangeInputs(b);
+    } else if (drag.mode==='tail'){
+      b.tailX = x; b.tailY = y;
+      if (b.tailCurved) clampTailCurveAnchor(b);
+    } else if (drag.mode==='tailBase'){
+      b.tailBaseX = x; b.tailBaseY = y;
+      if (b.tailCurved) clampTailCurveAnchor(b);
+    } else if (drag.mode==='tailCurve'){
+      b.tailCurveX = x; b.tailCurveY = y;
+      clampTailCurveAnchor(b);
+    } else if (drag.mode==='curve'){
+      const n = Math.max(6, Math.round(b.spikes));
+      const ang = ((Math.PI*2)/n)*0.5;
+      const base = ellipsePoint(b.cx, b.cy, b.rx, b.ry, ang);
+      const dOrig = Math.hypot(base.x-b.cx, base.y-b.cy);
+      const dNew = Math.hypot(x-b.cx, y-b.cy);
+      b.valleyCurve = Math.max(-40, Math.min(90, dOrig - dNew));
+      syncRangeInputs(b);
+    } else if (drag.mode==='penAnchor'){
+      b.customPoints[drag.idx] = canvasToUnit(b, x, y);
+    } else if (drag.mode==='penCurve'){
+      if (!b.customCurves) b.customCurves = new Array(b.customPoints.length).fill(null);
+      b.customCurves[drag.idx] = canvasToUnit(b, x, y);
+    }
+    render();
+  });
+  window.addEventListener('pointerup', ()=>{
+    drag = null;
+    if (drawMode && drawInputMode === 'freehand' && freehandActive){
+      freehandActive = false;
+      if (freehandRaw.length >= 3){
+        const smoothed = smoothRawPoints(freehandRaw, 2);
+        drawPoints = resampleOpen(smoothed, 36);
+      }
+      freehandRaw = [];
+      render();
+    }
+  });
+
+  stage.addEventListener('dblclick', (e)=>{
+    if (drawMode && (drawInputMode === 'point' || drawInputMode === 'pen')){ e.preventDefault(); finishDraw(false); }
+  });
+  window.addEventListener('keydown', (e)=>{
+    if (!drawMode) return;
+    if (e.key === 'Enter'){ e.preventDefault(); finishDraw(false); }
+    else if (e.key === 'Escape'){ e.preventDefault(); finishDraw(true); }
+  });
+
+  function updateDrawUI(){
+    const bar = document.getElementById('drawToolbar');
+    const hint = document.querySelector('.floating-hint');
+    if (bar) bar.style.display = drawMode ? 'flex' : 'none';
+    if (hint) hint.style.display = drawMode ? 'none' : 'block';
+  }
+
+  // Syncs the point/freehand toggle buttons and hint text to drawInputMode
+  // without touching any in-progress points (used on mode switch and when
+  // entering draw mode).
+  function syncDrawModeUI(){
+    document.querySelectorAll('.draw-mode-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.mode === drawInputMode);
+    });
+    const hint = document.getElementById('drawHintText');
+    if (hint){
+      hint.textContent = drawInputMode === 'freehand'
+        ? 'Giữ chuột và kéo để vẽ nét tự do · thả chuột để xem trước · Enter/Hoàn tất để chốt hình · Esc để huỷ'
+        : drawInputMode === 'pen'
+        ? 'Click để đặt điểm neo · click gần điểm đầu hoặc double‑click/Enter để hoàn tất · sau đó kéo chấm xanh dương giữa mỗi cạnh để bo cong'
+        : 'Click để đặt điểm · click gần điểm đầu hoặc double‑click/Enter để hoàn tất · Esc để huỷ';
+    }
+  }
+  function setDrawInputMode(mode){
+    drawInputMode = mode;
+    drawPoints = [];
+    drawMouse = null;
+    freehandRaw = [];
+    freehandActive = false;
+    syncDrawModeUI();
+    render();
+  }
+  document.querySelectorAll('.draw-mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setDrawInputMode(btn.dataset.mode));
+  });
+
+  // Enters point-placing/freehand mode on the canvas. Reuses the currently
+  // selected bubble (so its position/list entry stays put) or creates one
+  // if none exists yet — matching how the other shape buttons always act
+  // on the selected bubble.
+  function startDrawMode(){
+    let sel = selected();
+    if (!sel){
+      sel = newBubble();
+      bubbles.push(sel);
+      selectedId = sel.id;
+      renderList();
+    }
+    drawMode = true;
+    drawPoints = [];
+    drawMouse = null;
+    freehandRaw = [];
+    freehandActive = false;
+    stage.style.cursor = 'crosshair';
+    syncDrawModeUI();
+    updateDrawUI();
+    render();
+  }
+
+  // Converts the placed/traced points into unit-space customPoints anchored
+  // to the drawing's own bounding box, so rx/ry then behave exactly like
+  // they do for every other shape (half-width/half-height, scalable via the
+  // sliders). Freehand shapes are flagged customSmooth so they render (and
+  // splice a tail) through a smooth spline; point-clicked shapes keep the
+  // original sharp-corner polygon rendering.
+  function finishDraw(cancel){
+    if (cancel || drawPoints.length < 3){
+      if (!cancel && drawPoints.length > 0){
+        alert('Cần ít nhất 3 điểm để tạo hình. Hãy thử lại.');
+      }
+      drawMode = false; drawPoints = []; drawMouse = null;
+      freehandRaw = []; freehandActive = false;
+      stage.style.cursor = 'default';
+      updateDrawUI();
+      render();
+      return;
+    }
+    const b = selected();
+    if (b){
+      const xs = drawPoints.map(p=>p.x), ys = drawPoints.map(p=>p.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      const cx = (minX+maxX)/2, cy = (minY+maxY)/2;
+      const rx = Math.max(20, (maxX-minX)/2), ry = Math.max(20, (maxY-minY)/2);
+      b.type = 'custom';
+      b.customSmooth = (drawInputMode === 'freehand');
+      b.customPen = (drawInputMode === 'pen');
+      b.customPoints = drawPoints.map(p=>({ x:(p.x-cx)/rx, y:(p.y-cy)/ry }));
+      b.customCurves = b.customPen ? new Array(b.customPoints.length).fill(null) : null;
+      b.cx = cx; b.cy = cy; b.rx = rx; b.ry = ry;
+      const tailX = cx - rx*0.3, tailY = cy + ry + 60;
+      b.tailX = tailX; b.tailY = tailY;
+      const baseGuess = polygonEdgePoint(b, tailX, tailY);
+      b.tailBaseX = baseGuess.x; b.tailBaseY = baseGuess.y;
+      b.tailCurveX = null; b.tailCurveY = null;
+      renderList();
+      syncRangeInputs(b);
+    }
+    drawMode = false; drawPoints = []; drawMouse = null;
+    freehandRaw = []; freehandActive = false;
+    stage.style.cursor = 'default';
+    updateDrawUI();
+    render();
+  }
+
+  document.getElementById('btnDrawFinish').addEventListener('click', ()=> finishDraw(false));
+  document.getElementById('btnDrawCancel').addEventListener('click', ()=> finishDraw(true));
+
+  // ---------- UI wiring ----------
+  const shapeGrid = document.getElementById('shapeGrid');
+  shapeGrid.querySelectorAll('.shape-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if (btn.dataset.shape === 'custom'){
+        startDrawMode();
+        return;
+      }
+      const sel = selected(); if (!sel) return;
+      sel.type = btn.dataset.shape;
+      updateShapeUI(sel);
+      render();
+    });
+  });
+
+  const rangeRx = document.getElementById('rangeRx');
+  const rangeRy = document.getElementById('rangeRy');
+  const rangeTailW = document.getElementById('rangeTailW');
+  const rangeTailInset = document.getElementById('rangeTailInset');
+  const rangeCorner = document.getElementById('rangeCorner');
+  const rangeSpikes = document.getElementById('rangeSpikes');
+  const rangeSpikeDepth = document.getElementById('rangeSpikeDepth');
+  const rangeSpikeWidth = document.getElementById('rangeSpikeWidth');
+  const rangeSpikeVariance = document.getElementById('rangeSpikeVariance');
+  const rangeValleyCurve = document.getElementById('rangeValleyCurve');
+  const rangeStrokeW = document.getElementById('rangeStrokeW');
+  const rangeDashLen = document.getElementById('rangeDashLen');
+  const rangeDashGap = document.getElementById('rangeDashGap');
+  const colorFill = document.getElementById('colorFill');
+  const colorStroke = document.getElementById('colorStroke');
+
+  // Pairs a slider with a keyboard-editable number input, kept in sync
+  // both ways: dragging the slider updates the number, and typing in the
+  // number field (any value — not clamped to the slider's range) updates
+  // the shape immediately.
+  function bindRange(input, numEl, prop, onChange){
+    input.addEventListener('input', ()=>{
+      const sel = selected(); if (!sel) return;
+      sel[prop] = Number(input.value);
+      numEl.value = input.value;
+      if (onChange) onChange(sel);
+      render();
+    });
+    numEl.addEventListener('input', ()=>{
+      const sel = selected(); if (!sel) return;
+      if (numEl.value === '' || numEl.value === '-') return;
+      const n = Number(numEl.value);
+      if (Number.isNaN(n)) return;
+      sel[prop] = n;
+      const rMin = Number(input.min), rMax = Number(input.max);
+      input.value = Math.max(rMin, Math.min(rMax, n));
+      if (onChange) onChange(sel);
+      render();
+    });
+    numEl.addEventListener('blur', ()=>{
+      if (numEl.value === '' || numEl.value === '-') numEl.value = input.value;
+    });
+  }
+  bindRange(rangeRx, document.getElementById('valRx'), 'rx');
+  bindRange(rangeRy, document.getElementById('valRy'), 'ry');
+  bindRange(rangeTailW, document.getElementById('valTailW'), 'tailW');
+  bindRange(rangeTailInset, document.getElementById('valTailInset'), 'tailInset');
+  bindRange(rangeCorner, document.getElementById('valCorner'), 'corner');
+  bindRange(rangeSpikes, document.getElementById('valSpikes'), 'spikes');
+  bindRange(rangeSpikeDepth, document.getElementById('valSpikeDepth'), 'spikeDepth');
+  bindRange(rangeSpikeWidth, document.getElementById('valSpikeWidth'), 'spikeWidth');
+  bindRange(rangeSpikeVariance, document.getElementById('valSpikeVariance'), 'spikeVariance');
+  bindRange(rangeValleyCurve, document.getElementById('valValleyCurve'), 'valleyCurve');
+  bindRange(rangeStrokeW, document.getElementById('valStrokeW'), 'strokeW');
+  bindRange(rangeDashLen, document.getElementById('valDashLen'), 'dashLen');
+  bindRange(rangeDashGap, document.getElementById('valDashGap'), 'dashGap');
+
+  colorFill.addEventListener('input', ()=>{
+    const sel = selected(); if (!sel) return;
+    sel.fill = colorFill.value;
+    document.getElementById('hexFill').textContent = colorFill.value;
+    render();
+  });
+  colorStroke.addEventListener('input', ()=>{
+    const sel = selected(); if (!sel) return;
+    sel.stroke = colorStroke.value;
+    document.getElementById('hexStroke').textContent = colorStroke.value;
+    render();
+  });
+  document.getElementById('toggleTailCurved').addEventListener('change', (e)=>{
+    const sel = selected(); if (!sel) return;
+    sel.tailCurved = e.target.checked;
+    if (sel.tailCurved) ensureCurvePoint(sel);
+    render();
+  });
+  document.getElementById('toggleDashed').addEventListener('change', (e)=>{
+    const sel = selected(); if (!sel) return;
+    sel.strokeDashed = e.target.checked;
+    render();
+  });
+
+  function labelFor(t){
+    return {oval:'Bầu dục', rect:'Chữ nhật', cloud:'Suy nghĩ', shout:'Hét', custom:'Tự vẽ'}[t] || t;
+  }
+
+  function updateShapeUI(b){
+    shapeGrid.querySelectorAll('.shape-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.shape===b.type);
+    });
+    const shapeSummary = document.getElementById('shapeSummary');
+    if (shapeSummary) shapeSummary.textContent = '· ' + labelFor(b.type);
+
+    const hasTail = (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom');
+    const canDash = (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom');
+    const isShout = (b.type==='shout');
+
+    document.getElementById('sectionTail').style.display = hasTail ? 'block' : 'none';
+    document.getElementById('rowTailW').style.display = hasTail ? 'flex' : 'none';
+    document.getElementById('rowTailInset').style.display = (b.type==='cloud') ? 'flex' : 'none';
+    document.getElementById('rowTailCurved').style.display = (b.type==='oval'||b.type==='rect'||b.type==='custom') ? 'flex' : 'none';
+    document.getElementById('rowCorner').style.display = (b.type==='rect') ? 'flex' : 'none';
+
+    document.getElementById('sectionSpikes').style.display = isShout ? 'block' : 'none';
+    document.getElementById('sectionSpikes').open = isShout;
+
+    document.getElementById('rowDashed').style.display = canDash ? 'flex' : 'none';
+    const showDashVals = canDash && b.strokeDashed;
+    document.getElementById('rowDashLen').style.display = showDashVals ? 'flex' : 'none';
+    document.getElementById('rowDashGap').style.display = showDashVals ? 'flex' : 'none';
+    document.getElementById('dashHintShout').style.display = isShout ? 'block' : 'none';
+  }
+
+  function syncRangeInputs(b){
+    rangeRx.value = Math.round(b.rx); document.getElementById('valRx').value = Math.round(b.rx);
+    rangeRy.value = Math.round(b.ry); document.getElementById('valRy').value = Math.round(b.ry);
+    rangeTailW.value = b.tailW; document.getElementById('valTailW').value = b.tailW;
+    rangeTailInset.value = b.tailInset||0; document.getElementById('valTailInset').value = b.tailInset||0;
+    document.getElementById('toggleTailCurved').checked = !!b.tailCurved;
+    rangeCorner.value = b.corner; document.getElementById('valCorner').value = b.corner;
+    rangeSpikes.value = b.spikes; document.getElementById('valSpikes').value = b.spikes;
+    rangeSpikeDepth.value = b.spikeDepth; document.getElementById('valSpikeDepth').value = b.spikeDepth;
+    rangeSpikeWidth.value = b.spikeWidth||30; document.getElementById('valSpikeWidth').value = b.spikeWidth||30;
+    rangeSpikeVariance.value = b.spikeVariance||0; document.getElementById('valSpikeVariance').value = b.spikeVariance||0;
+    rangeValleyCurve.value = b.valleyCurve||0; document.getElementById('valValleyCurve').value = b.valleyCurve||0;
+    rangeStrokeW.value = b.strokeW; document.getElementById('valStrokeW').value = b.strokeW;
+    document.getElementById('toggleDashed').checked = !!b.strokeDashed;
+    rangeDashLen.value = b.dashLen||10; document.getElementById('valDashLen').value = b.dashLen||10;
+    rangeDashGap.value = b.dashGap||8; document.getElementById('valDashGap').value = b.dashGap||8;
+    colorFill.value = b.fill; document.getElementById('hexFill').textContent = b.fill;
+    colorStroke.value = b.stroke; document.getElementById('hexStroke').textContent = b.stroke;
+    updateShapeUI(b);
+  }
+
+  function renderList(){
+    const list = document.getElementById('bubbleList');
+    const emptyHint = document.getElementById('emptyHint');
+    const editPanel = document.getElementById('editPanel');
+    list.innerHTML = '';
+    if (bubbles.length===0){
+      emptyHint.style.display='block';
+      editPanel.style.display='none';
+      return;
+    }
+    emptyHint.style.display='none';
+    editPanel.style.display='block';
+    bubbles.forEach((b,idx)=>{
+      const item = document.createElement('div');
+      item.className = 'bubble-item' + (b.id===selectedId ? ' active':'');
+      item.innerHTML = `<span class="dot"></span><span class="name">Bóng thoại ${idx+1} · ${labelFor(b.type)}</span><button class="del">✕</button>`;
+      item.addEventListener('click', (e)=>{
+        if (e.target.classList.contains('del')) return;
+        selectBubble(b.id);
+      });
+      item.querySelector('.del').addEventListener('click', ()=>{
+        bubbles = bubbles.filter(x=>x.id!==b.id);
+        if (selectedId===b.id) selectedId = bubbles.length ? bubbles[bubbles.length-1].id : null;
+        renderList(); render();
+        if (selectedId) syncRangeInputs(selected());
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function selectBubble(id){
+    selectedId = id;
+    renderList();
+    syncRangeInputs(selected());
+    render();
+  }
+
+  document.getElementById('btnAdd').addEventListener('click', ()=>{
+    const b = newBubble();
+    bubbles.push(b);
+    selectBubble(b.id);
+  });
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    if (bubbles.length && !confirm('Xoá tất cả bóng thoại trên canvas?')) return;
+    bubbles = []; selectedId = null;
+    renderList(); render();
+  });
+
+  // canvas size controls
+  const canvasWInput = document.getElementById('canvasW');
+  const canvasHInput = document.getElementById('canvasH');
+  function applyCanvasSize(){
+    stage.width = Math.max(100, Number(canvasWInput.value)||900);
+    stage.height = Math.max(100, Number(canvasHInput.value)||700);
+    render();
+  }
+  canvasWInput.addEventListener('change', applyCanvasSize);
+  canvasHInput.addEventListener('change', applyCanvasSize);
+
+  // export scale toggles
+  document.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.toggle-btn').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      exportScale = Number(btn.dataset.scale);
+    });
+  });
+
+  function download(canvasEl, filename){
+    canvasEl.toBlob((blob)=>{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    }, 'image/png');
+  }
+
+  document.getElementById('btnExportAll').addEventListener('click', ()=>{
+    const off = document.createElement('canvas');
+    off.width = stage.width*exportScale;
+    off.height = stage.height*exportScale;
+    const octx = off.getContext('2d');
+    octx.scale(exportScale, exportScale);
+    for (const b of bubbles){ drawBubble(octx, b); }
+    download(off, `bong-thoai-canvas-${Date.now()}.png`);
+  });
+
+  // A rough-but-generous bounding box from every control point that can
+  // influence a bubble's outline (body, tail tip/base/curve, spike reach,
+  // cloud bumps). Used only as the canvas size for the pixel scan below —
+  // it just needs to be big enough to never clip the shape.
+  function roughBounds(b){
+    let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+    function upd(x,y){ if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; }
+    upd(b.cx-b.rx, b.cy-b.ry); upd(b.cx+b.rx, b.cy+b.ry);
+    if (typeof b.tailX === 'number') upd(b.tailX, b.tailY);
+    if (typeof b.tailBaseX === 'number') upd(b.tailBaseX, b.tailBaseY);
+    if (b.tailCurved && b.tailCurveX!=null) upd(b.tailCurveX, b.tailCurveY);
+    if (b.type === 'shout'){
+      const ext = b.spikeDepth || 0;
+      upd(b.cx-b.rx-ext, b.cy-b.ry-ext); upd(b.cx+b.rx+ext, b.cy+b.ry+ext);
+    }
+    if (b.type === 'cloud'){
+      const bump = Math.min(b.rx,b.ry)*0.22;
+      upd(b.cx-b.rx-bump, b.cy-b.ry-bump); upd(b.cx+b.rx+bump, b.cy+b.ry+bump);
+    }
+    if (b.type === 'custom' && b.customPen && b.customCurves){
+      for (const c of b.customCurves){ if (c) upd(b.cx+c.x*b.rx, b.cy+c.y*b.ry); }
+    }
+    const dashPad = (b.strokeDashed && DASH_SHAPES[b.type]) ? (b.dashLen||10)+(b.dashGap||8) : 0;
+    const pad = 40 + (b.strokeW||0) + dashPad;
+    return { minX: minX-pad, minY: minY-pad, maxX: maxX+pad, maxY: maxY+pad };
+  }
+
+  // Scans rendered pixels for the tightest opaque bounding box, so the
+  // final crop always hugs the actual shape — this is what fixes bubbles
+  // being cut off / shifted in the exported PNG, regardless of shape,
+  // tail curve, or drag position.
+  function pixelBounds(canvasEl){
+    const c = canvasEl.getContext('2d');
+    const w = canvasEl.width, h = canvasEl.height;
+    const data = c.getImageData(0,0,w,h).data;
+    let minX=w, minY=h, maxX=-1, maxY=-1;
+    for (let y=0; y<h; y++){
+      const rowOff = y*w*4;
+      for (let x=0; x<w; x++){
+        if (data[rowOff + x*4 + 3] > 0){
+          if (x<minX) minX=x; if (x>maxX) maxX=x;
+          if (y<minY) minY=y; if (y>maxY) maxY=y;
+        }
+      }
+    }
+    if (maxX < 0) return null;
+    return { minX, minY, maxX, maxY };
+  }
+
+  document.getElementById('btnExportOne').addEventListener('click', ()=>{
+    const b = selected();
+    if (!b){ alert('Chưa chọn bóng thoại nào.'); return; }
+
+    // Pass 1: draw into a generously-sized probe canvas (scale 1) just to
+    // find the exact pixel extents of the shape.
+    const guess = roughBounds(b);
+    const gw = Math.max(1, Math.ceil(guess.maxX-guess.minX));
+    const gh = Math.max(1, Math.ceil(guess.maxY-guess.minY));
+    const probe = document.createElement('canvas');
+    probe.width = gw; probe.height = gh;
+    const pctx = probe.getContext('2d');
+    pctx.translate(-guess.minX, -guess.minY);
+    drawBubble(pctx, b);
+    const tight = pixelBounds(probe);
+
+    const finalPad = 10;
+    let minX, minY, maxX, maxY;
+    if (tight){
+      minX = guess.minX + tight.minX - finalPad;
+      minY = guess.minY + tight.minY - finalPad;
+      maxX = guess.minX + tight.maxX + 1 + finalPad;
+      maxY = guess.minY + tight.maxY + 1 + finalPad;
+    } else {
+      minX = guess.minX; minY = guess.minY; maxX = guess.maxX; maxY = guess.maxY;
+    }
+
+    // Pass 2: draw the final crop at the requested export scale.
+    const w = maxX-minX, h = maxY-minY;
+    const off = document.createElement('canvas');
+    off.width = Math.max(1, Math.round(w*exportScale));
+    off.height = Math.max(1, Math.round(h*exportScale));
+    const octx = off.getContext('2d');
+    octx.scale(exportScale, exportScale);
+    octx.translate(-minX, -minY);
+    drawBubble(octx, b);
+    download(off, `bong-thoai-${Date.now()}.png`);
+  });
+
+  // init with one bubble
+  const first = newBubble();
+  bubbles.push(first);
+  selectBubble(first.id);
+  applyCanvasSize();
+})();
+</script>
+</body>
+</html>
