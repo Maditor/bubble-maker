@@ -297,6 +297,23 @@
     color:var(--text-lo);
   }
   .toggle-btn.active{ background:var(--accent-dim); border-color:var(--accent); color:var(--text-hi); }
+  .tail-style-toggle{
+    display:flex; gap:6px; width:100%;
+  }
+  .tail-style-btn{
+    flex:1;
+    background: var(--bg-panel-alt);
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:8px 6px;
+    color:var(--text-lo);
+    font-size:11px;
+    font-weight:600;
+    font-family:var(--font-body);
+    cursor:pointer;
+  }
+  .tail-style-btn:hover{ border-color:#55555f; }
+  .tail-style-btn.active{ border-color:var(--accent); color:var(--text-hi); background:var(--accent-dim); }
 
   .bubble-list{ display:flex; flex-direction:column; gap:6px; }
   .bubble-item{
@@ -484,10 +501,18 @@
       <details class="panel-card" id="sectionTail" open>
         <summary>Đuôi bóng thoại</summary>
         <div class="panel-body">
+          <div class="row" id="rowTailOn"><label>Hiện đuôi</label><label class="switch"><input type="checkbox" id="toggleTailOn" checked><span class="switch-track"></span></label></div>
+          <div class="row row-tight" id="rowTailStyle" style="flex-wrap:wrap;">
+            <label style="width:100%;margin-bottom:6px;">Kiểu đuôi</label>
+            <div class="tail-style-toggle" id="tailStyleToggle">
+              <button type="button" class="tail-style-btn" data-style="pointed">▲ Nhọn</button>
+              <button type="button" class="tail-style-btn" data-style="bubble">○○○ Bong bóng</button>
+            </div>
+          </div>
           <div class="row" id="rowTailW"><label>Độ rộng đuôi</label><input type="range" id="rangeTailW" min="0" max="80" value="26"><input type="number" class="val-input" id="valTailW" value="26"></div>
           <div class="row" id="rowTailInset"><label>Đuôi ăn sâu</label><input type="range" id="rangeTailInset" min="0" max="60" value="16"><input type="number" class="val-input" id="valTailInset" value="16"></div>
           <div class="row" id="rowTailCurved"><label>Đuôi cong</label><label class="switch"><input type="checkbox" id="toggleTailCurved"><span class="switch-track"></span></label></div>
-          <div class="field-hint">Kéo <b style="color:var(--text-hi)">chấm đỏ</b> trên canvas để chỉnh đầu đuôi, <b style="color:var(--text-hi)">chấm tím</b> để chỉnh gốc đuôi.</div>
+          <div class="field-hint" id="tailHint">Kéo <b style="color:var(--text-hi)">chấm đỏ</b> trên canvas để chỉnh đầu đuôi, <b style="color:var(--text-hi)">chấm tím</b> để chỉnh gốc đuôi.</div>
         </div>
       </details>
 
@@ -600,6 +625,8 @@
       tailBaseX: baseGuess.x, tailBaseY: baseGuess.y,
       tailCurved: false,
       tailCurveX: null, tailCurveY: null,
+      tailOn: true,
+      tailStyle: 'pointed',
       tailW: 26,
       tailInset: 16,
       corner: 18,
@@ -776,24 +803,59 @@
     }
     clampTailCurveAnchor(b);
   }
+  // Whether a tail should actually be drawn for this bubble right now —
+  // respects the on/off switch (default true for bubbles saved before this
+  // feature existed) as well as the width slider.
+  function tailActive(b){
+    return b.tailOn !== false && b.tailW > 0;
+  }
+  // Appends a trailing row of shrinking circles from the body's edge toward
+  // the tail tip — the classic "thought bubble" tail. Shared by every shape
+  // that supports it (oval/rect/custom splice a full closed body first and
+  // call this after; cloud already has its own edge/tail geometry).
+  function addBubbleTailCircles(p, b, edgeX, edgeY){
+    const dx = b.tailX-edgeX, dy = b.tailY-edgeY;
+    const dist = Math.hypot(dx,dy) || 1;
+    const ux = dx/dist, uy = dy/dist;
+    let sx = edgeX, sy = edgeY;
+    let stepDist = Math.max(18, Math.min(dist/4, 46));
+    let rad = Math.max(6, b.tailW*0.5);
+    for (let i=0;i<3;i++){
+      sx += ux*stepDist*0.7;
+      sy += uy*stepDist*0.7;
+      rad *= 0.62;
+      if (rad < 2) break;
+      p.moveTo(sx+rad, sy);
+      p.arc(sx, sy, rad, 0, Math.PI*2);
+      stepDist *= 0.9;
+    }
+  }
   function buildPath(b){
     const p = new Path2D();
     if (b.type === 'oval'){
-      if (b.tailW > 0){
+      if (tailActive(b) && b.tailStyle === 'pointed'){
         if (b.tailCurved) ensureCurvePoint(b);
         const outline = ellipseOutlinePoints(b.cx, b.cy, b.rx, b.ry, 180);
         buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
       } else {
         p.ellipse(b.cx, b.cy, b.rx, b.ry, 0, 0, Math.PI*2);
+        if (tailActive(b) && b.tailStyle === 'bubble'){
+          const edge = pullInward(b.cx, b.cy, b.tailBaseX, b.tailBaseY, b.tailInset||0);
+          addBubbleTailCircles(p, b, edge.x, edge.y);
+        }
       }
     } else if (b.type === 'rect'){
       const hw=b.rx, hh=b.ry, r=Math.min(b.corner, hw, hh);
-      if (b.tailW > 0){
+      if (tailActive(b) && b.tailStyle === 'pointed'){
         if (b.tailCurved) ensureCurvePoint(b);
         const outline = roundRectOutlinePoints(b.cx, b.cy, hw, hh, r);
         buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
       } else {
         roundRectPath(p, b.cx-hw, b.cy-hh, hw*2, hh*2, r);
+        if (tailActive(b) && b.tailStyle === 'bubble'){
+          const edge = pullInward(b.cx, b.cy, b.tailBaseX, b.tailBaseY, b.tailInset||0);
+          addBubbleTailCircles(p, b, edge.x, edge.y);
+        }
       }
     } else if (b.type === 'cloud'){
       cloudPath(p, b);
@@ -801,12 +863,16 @@
       shoutPath(p, b);
     } else if (b.type === 'custom'){
       if (b.customPoints && b.customPoints.length >= 3){
-        if (b.tailW > 0){
+        if (tailActive(b) && b.tailStyle === 'pointed'){
           if (b.tailCurved) ensureCurvePoint(b);
           const outline = customOutlinePoints(b, 10);
           buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
         } else {
           customPolygonPath(p, b);
+          if (tailActive(b) && b.tailStyle === 'bubble'){
+            const edge = pullInward(b.cx, b.cy, b.tailBaseX, b.tailBaseY, b.tailInset||0);
+            addBubbleTailCircles(p, b, edge.x, edge.y);
+          }
         }
       }
     }
@@ -999,17 +1065,42 @@
     p.closePath();
   }
 
-  function cloudPath(p, b){
-    // main scalloped ellipse using bumps
+  // Dense point samples along the scalloped bump outline — same role as
+  // ellipseOutlinePoints/roundRectOutlinePoints, lets the cloud body splice
+  // a pointed tail in seamlessly via buildBodyWithTailPath when that style
+  // is chosen.
+  function cloudBodyOutlinePoints(b, subdivide){
+    subdivide = subdivide || 10;
     const bumps = 14;
     const cx=b.cx, cy=b.cy, rx=b.rx, ry=b.ry;
     const bumpSize = Math.min(rx,ry)*0.22;
-    let first=null;
+    const pts = [];
+    for (let i=0;i<bumps;i++){
+      const ang = (i/bumps)*Math.PI*2;
+      const bx = cx+rx*Math.cos(ang), by = cy+ry*Math.sin(ang);
+      const nextAng = ((i+0.5)/bumps)*Math.PI*2;
+      const midx = cx+(rx+bumpSize)*Math.cos(nextAng), midy = cy+(ry+bumpSize)*Math.sin(nextAng);
+      const endAng = ((i+1)/bumps)*Math.PI*2;
+      const ex = cx+rx*Math.cos(endAng), ey = cy+ry*Math.sin(endAng);
+      for (let s=0;s<subdivide;s++){
+        const t=s/subdivide, mt=1-t;
+        pts.push({
+          x: mt*mt*bx + 2*mt*t*midx + t*t*ex,
+          y: mt*mt*by + 2*mt*t*midy + t*t*ey
+        });
+      }
+    }
+    return pts;
+  }
+  function cloudBumpBodyPath(p, b){
+    const bumps = 14;
+    const cx=b.cx, cy=b.cy, rx=b.rx, ry=b.ry;
+    const bumpSize = Math.min(rx,ry)*0.22;
     for (let i=0;i<=bumps;i++){
       const ang = (i/bumps)*Math.PI*2;
       const bx = cx+rx*Math.cos(ang);
       const by = cy+ry*Math.sin(ang);
-      if (i===0){ p.moveTo(bx,by); first={x:bx,y:by}; }
+      if (i===0){ p.moveTo(bx,by); }
       const nextAng = ((i+0.5)/bumps)*Math.PI*2;
       const midx = cx+(rx+bumpSize)*Math.cos(nextAng);
       const midy = cy+(ry+bumpSize)*Math.sin(nextAng);
@@ -1019,23 +1110,20 @@
       p.quadraticCurveTo(midx, midy, ex, ey);
     }
     p.closePath();
-    // trailing circles toward tail
-    const dx = b.tailX-cx, dy = b.tailY-cy;
-    const dist = Math.hypot(dx,dy) || 1;
-    const ux = dx/dist, uy = dy/dist;
-    const rawEdge = ellipseEdgePoint(cx, cy, rx, ry, b.tailX, b.tailY);
-    const edge = pullInward(cx, cy, rawEdge.x, rawEdge.y, b.tailInset||0);
-    let sx = edge.x, sy = edge.y;
-    let stepDist = Math.max(18, Math.min(dist/4, 46));
-    let rad = Math.max(6, b.tailW*0.5);
-    for (let i=0;i<3;i++){
-      sx += ux*stepDist*0.7;
-      sy += uy*stepDist*0.7;
-      rad *= 0.62;
-      if (rad < 2) break;
-      p.moveTo(sx+rad, sy);
-      p.arc(sx, sy, rad, 0, Math.PI*2);
-      stepDist *= 0.9;
+  }
+  function cloudPath(p, b){
+    if (tailActive(b) && b.tailStyle === 'pointed'){
+      if (b.tailCurved) ensureCurvePoint(b);
+      const outline = cloudBodyOutlinePoints(b, 10);
+      buildBodyWithTailPath(p, outline, b.tailBaseX, b.tailBaseY, b.tailX, b.tailY, b.tailW, b.tailCurved, b.tailCurveX, b.tailCurveY);
+      return;
+    }
+    // scalloped body, no notch — the classic thought-bubble outline
+    cloudBumpBodyPath(p, b);
+    if (tailActive(b) && b.tailStyle === 'bubble'){
+      const rawEdge = ellipseEdgePoint(b.cx, b.cy, b.rx, b.ry, b.tailX, b.tailY);
+      const edge = pullInward(b.cx, b.cy, rawEdge.x, rawEdge.y, b.tailInset||0);
+      addBubbleTailCircles(p, b, edge.x, edge.y);
     }
   }
 
@@ -1198,13 +1286,13 @@
     // resize handle (bottom-right)
     handleDot(b.cx+b.rx, b.cy+b.ry, '#5eead4', '#0c1413');
     // tail handle
-    if (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom'){
+    if (tailActive(b) && (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom')){
       handleDot(b.tailX, b.tailY, '#ff6b6b', '#2a0d0d');
     }
     // tail base anchor (only for the seamless-splice shapes)
-    if (b.type==='oval' || b.type==='rect' || b.type==='custom'){
+    if (tailActive(b) && (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom')){
       handleDot(b.tailBaseX, b.tailBaseY, '#8b5cf6', '#1c1533');
-      if (b.tailCurved){
+      if (b.tailStyle === 'pointed' && b.tailCurved){
         ensureCurvePoint(b);
         handleDot(b.tailCurveX, b.tailCurveY, '#60a5fa', '#122238');
       }
@@ -1261,10 +1349,10 @@
 
   function hitHandle(b, x, y){
     if (Math.hypot(x-(b.cx+b.rx), y-(b.cy+b.ry)) < HANDLE_R+5) return 'resize';
-    if ((b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom') && Math.hypot(x-b.tailX, y-b.tailY) < HANDLE_R+6) return 'tail';
-    if (b.type==='oval'||b.type==='rect'||b.type==='custom'){
+    if (tailActive(b) && (b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom') && Math.hypot(x-b.tailX, y-b.tailY) < HANDLE_R+6) return 'tail';
+    if (tailActive(b) && (b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom')){
       if (Math.hypot(x-b.tailBaseX, y-b.tailBaseY) < HANDLE_R+6) return 'tailBase';
-      if (b.tailCurved){
+      if (b.tailStyle === 'pointed' && b.tailCurved){
         ensureCurvePoint(b);
         if (Math.hypot(x-b.tailCurveX, y-b.tailCurveY) < HANDLE_R+6) return 'tailCurve';
       }
@@ -1535,8 +1623,17 @@
         return;
       }
       const sel = selected(); if (!sel) return;
+      const prevType = sel.type;
       sel.type = btn.dataset.shape;
+      // Default tail style follows the shape the first time you switch into
+      // it — thought clouds read best with the bubble-trail tail, everything
+      // else with the classic pointed one. Only applied on an actual type
+      // change so it never fights a style you already picked deliberately.
+      if (prevType !== sel.type){
+        sel.tailStyle = (sel.type === 'cloud') ? 'bubble' : 'pointed';
+      }
       updateShapeUI(sel);
+      syncRangeInputs(sel);
       render();
     });
   });
@@ -1616,6 +1713,21 @@
     if (sel.tailCurved) ensureCurvePoint(sel);
     render();
   });
+  document.getElementById('toggleTailOn').addEventListener('change', (e)=>{
+    const sel = selected(); if (!sel) return;
+    sel.tailOn = e.target.checked;
+    updateShapeUI(sel);
+    render();
+  });
+  document.querySelectorAll('.tail-style-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const sel = selected(); if (!sel) return;
+      sel.tailStyle = btn.dataset.style;
+      if (sel.tailStyle === 'pointed' && sel.tailCurved) ensureCurvePoint(sel);
+      updateShapeUI(sel);
+      render();
+    });
+  });
   document.getElementById('toggleDashed').addEventListener('change', (e)=>{
     const sel = selected(); if (!sel) return;
     sel.strokeDashed = e.target.checked;
@@ -1636,12 +1748,22 @@
     const hasTail = (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom');
     const canDash = (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom');
     const isShout = (b.type==='shout');
+    const tailShowing = hasTail && tailActive(b);
+    const isBubbleTail = tailShowing && b.tailStyle === 'bubble';
+    const isPointedTail = tailShowing && b.tailStyle === 'pointed';
 
     document.getElementById('sectionTail').style.display = hasTail ? 'block' : 'none';
-    document.getElementById('rowTailW').style.display = hasTail ? 'flex' : 'none';
-    document.getElementById('rowTailInset').style.display = (b.type==='cloud') ? 'flex' : 'none';
-    document.getElementById('rowTailCurved').style.display = (b.type==='oval'||b.type==='rect'||b.type==='custom') ? 'flex' : 'none';
+    document.getElementById('rowTailOn').style.display = hasTail ? 'flex' : 'none';
+    document.getElementById('rowTailStyle').style.display = tailShowing ? 'flex' : 'none';
+    document.getElementById('rowTailW').style.display = tailShowing ? 'flex' : 'none';
+    document.getElementById('rowTailInset').style.display = isBubbleTail ? 'flex' : 'none';
+    document.getElementById('rowTailCurved').style.display = isPointedTail ? 'flex' : 'none';
+    document.getElementById('tailHint').style.display = tailShowing ? 'block' : 'none';
     document.getElementById('rowCorner').style.display = (b.type==='rect') ? 'flex' : 'none';
+    document.querySelectorAll('.tail-style-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.style === (b.tailStyle||'pointed'));
+    });
+    document.getElementById('toggleTailOn').checked = (b.tailOn !== false);
 
     document.getElementById('sectionSpikes').style.display = isShout ? 'block' : 'none';
     document.getElementById('sectionSpikes').open = isShout;
