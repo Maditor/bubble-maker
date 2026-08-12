@@ -103,6 +103,8 @@
     display:inline-flex; align-items:center; justify-content:center;
     font-size:16px; flex-shrink:0;
   }
+  .icon-btn.active{ background:var(--accent-dim); border-color:var(--accent); color:var(--text-hi); }
+  .icon-btn.dimmed{ opacity:.45; }
   .icon-svg{ width:14px; height:14px; flex-shrink:0; vertical-align:-3px; }
   .icon-svg.sz-16{ width:16px; height:16px; }
   .icon-svg.sz-18{ width:18px; height:18px; }
@@ -603,6 +605,23 @@
           <span>Viền</span>
           <input type="color" id="colorStroke" value="#111111">
         </div>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group">
+        <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
+        <button class="btn btn-ghost icon-btn" id="btnBgUpload" title="Thêm ảnh nền để vẽ theo">
+          <svg class="icon-svg sz-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        </button>
+        <div class="toolbar-stroke" id="bgOpacityWrap" style="display:none;">
+          <span>Mờ nền</span>
+          <input type="range" id="rangeBgOpacity" min="10" max="100" value="50">
+        </div>
+        <button class="btn btn-ghost icon-btn active" id="btnBgToggle" title="Ẩn/hiện ảnh nền" style="display:none;">
+          <svg class="icon-svg sz-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="btn btn-ghost icon-btn" id="btnBgRemove" title="Xoá ảnh nền" style="display:none;">
+          <svg class="icon-svg sz-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -1295,8 +1314,24 @@
       octx.restore();
     }
   }
+  // Reference background image (tracing aid only) — drawn first, under
+  // every bubble, and deliberately excluded from both export paths so
+  // exported PNGs stay transparent as before.
+  let bgImage = null;
+  let bgOpacity = 0.5;
+  let bgVisible = true;
+
   function render(){
     ctx.clearRect(0,0,stage.width,stage.height);
+    if (bgImage && bgVisible){
+      ctx.save();
+      ctx.globalAlpha = bgOpacity;
+      const fit = Math.min(stage.width/bgImage.width, stage.height/bgImage.height);
+      const dw = bgImage.width*fit, dh = bgImage.height*fit;
+      const dx = (stage.width-dw)/2, dy = (stage.height-dh)/2;
+      ctx.drawImage(bgImage, dx, dy, dw, dh);
+      ctx.restore();
+    }
     for (const b of bubbles){
       drawBubble(ctx, b);
     }
@@ -1932,6 +1967,58 @@
     bubbles = []; selectedId = null;
     renderList(); render();
   });
+
+  // background reference image
+  const bgFileInput = document.getElementById('bgFileInput');
+  const btnBgUpload = document.getElementById('btnBgUpload');
+  const btnBgToggle = document.getElementById('btnBgToggle');
+  const btnBgRemove = document.getElementById('btnBgRemove');
+  const bgOpacityWrap = document.getElementById('bgOpacityWrap');
+  const rangeBgOpacity = document.getElementById('rangeBgOpacity');
+
+  function updateBgUI(){
+    const has = !!bgImage;
+    bgOpacityWrap.style.display = has ? 'flex' : 'none';
+    btnBgToggle.style.display = has ? 'inline-flex' : 'none';
+    btnBgRemove.style.display = has ? 'inline-flex' : 'none';
+    btnBgToggle.classList.toggle('active', bgVisible);
+    btnBgUpload.classList.toggle('dimmed', has);
+  }
+
+  btnBgUpload.addEventListener('click', ()=> bgFileInput.click());
+  bgFileInput.addEventListener('change', ()=>{
+    const file = bgFileInput.files && bgFileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        bgImage = img;
+        bgVisible = true;
+        updateBgUI();
+        render();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    bgFileInput.value = '';
+  });
+  rangeBgOpacity.addEventListener('input', ()=>{
+    bgOpacity = Number(rangeBgOpacity.value)/100;
+    render();
+  });
+  btnBgToggle.addEventListener('click', ()=>{
+    if (!bgImage) return;
+    bgVisible = !bgVisible;
+    updateBgUI();
+    render();
+  });
+  btnBgRemove.addEventListener('click', ()=>{
+    bgImage = null;
+    updateBgUI();
+    render();
+  });
+  updateBgUI();
 
   // settings popover (canvas size & export scale)
   const btnSettings = document.getElementById('btnSettings');
