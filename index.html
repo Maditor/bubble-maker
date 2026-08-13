@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bóng Thoại — Speech Bubble Maker</title>
+<title>Bubble Maker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0idGVhbEdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjOGZmNWU0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNlY2JiMCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CgogIDwhLS0gYmFja2dyb3VuZCBkaXNjIC0tPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ4IiBmaWxsPSIjMTUxNTFhIi8+CgogIDwhLS0gc3BlZWNoIGJ1YmJsZSAtLT4KICA8cGF0aCBkPSJNMTUgMzUKICAgICAgICAgICBDMTUgMTgsIDM0IDgsIDUyIDgKICAgICAgICAgICBDNzQgOCwgODggMjAsIDg1IDM4CiAgICAgICAgICAgQzgyIDUzLCA2NiA2MSwgNTAgNjIKICAgICAgICAgICBMMzggNzgKICAgICAgICAgICBMNDIgNjAKICAgICAgICAgICBDMjAgNTgsIDEyIDQ4LCAxNSAzNQogICAgICAgICAgIFoiCiAgICAgICAgZmlsbD0iI2Y3ZjZmMiIgc3Ryb2tlPSIjMGMwYzBmIiBzdHJva2Utd2lkdGg9IjMuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgoKICA8IS0tIHBlbmNpbCwgdGlwIG5lYXIgKDU1LDc4KSwgcG9pbnRpbmcgdXAtcmlnaHQgdG93YXJkIGVyYXNlciAtLT4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NSw3OCkgcm90YXRlKDMxKSI+CiAgICA8IS0tIGJvZHkgLS0+CiAgICA8cmVjdCB4PSItOCIgeT0iLTU2IiB3aWR0aD0iMTYiIGhlaWdodD0iNDIiIGZpbGw9IiMxYjFiMjAiIHN0cm9rZT0iIzBjMGMwZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8IS0tIGJvZHkgaGlnaGxpZ2h0IGVkZ2UgLS0+CiAgICA8bGluZSB4MT0iLTMiIHkxPSItNTIiIHgyPSItMyIgeTI9Ii0xNiIgc3Ryb2tlPSIjM2EzYTQyIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPCEtLSB0aXAgLS0+CiAgICA8cGF0aCBkPSJNMCwwIEwtOCwtMTQgTDgsLTE0IFoiIGZpbGw9IiNmN2Y2ZjIiIHN0cm9rZT0iIzBjMGMwZiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgICA8cGF0aCBkPSJNMCwwIEwtOCwtMTQgTDAsLTE0IFoiIGZpbGw9IiNjN2M2YzIiLz4KICAgIDwhLS0gZmVycnVsZSAtLT4KICAgIDxyZWN0IHg9Ii04IiB5PSItNjIiIHdpZHRoPSIxNiIgaGVpZ2h0PSI3IiBmaWxsPSIjZjdmNmYyIiBzdHJva2U9IiMwYzBjMGYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogICAgPCEtLSBlcmFzZXIgLS0+CiAgICA8cmVjdCB4PSItOCIgeT0iLTc4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTciIHJ4PSI2IiBmaWxsPSJ1cmwoI3RlYWxHcmFkKSIgc3Ryb2tlPSIjMGMwYzBmIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8L2c+CgogIDwhLS0gdGVhbCB1bmRlcmxpbmUgc3dvb3AgLS0+CiAgPHBhdGggZD0iTTQwLDc5IFE2MCw5MyA4Miw3MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI3RlYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0LjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgoKICA8IS0tIG1vdGlvbiBkYXNoZXMgLS0+CiAgPGxpbmUgeDE9IjkxIiB5MT0iNTMiIHgyPSI5NyIgeTI9IjQzIiBzdHJva2U9InVybCgjdGVhbEdyYWQpIiBzdHJva2Utd2lkdGg9IjQuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9Ijk1IiB5MT0iNjUiIHgyPSIxMDQiIHkyPSI1OSIgc3Ryb2tlPSJ1cmwoI3RlYWxHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0LjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -248,12 +249,16 @@
   .toolbar-shapes{ display:flex; gap:6px; }
   .toolbar-shapes .shape-btn{
     flex-direction:row;
-    padding:6px 10px;
-    gap:6px;
+    justify-content:center;
+    align-items:center;
+    width:40px;
+    height:36px;
+    padding:8px;
     border-radius:8px;
+    flex-shrink:0;
   }
   .toolbar-shapes .shape-btn svg{ width:20px; height:16px; }
-  .toolbar-shapes .shape-btn span{ font-size:10.5px; }
+  .toolbar-shapes .shape-btn span{ display:none; }
 
   .quick-color{ display:flex; align-items:center; gap:5px; }
   .quick-color input[type=color]{
@@ -460,7 +465,7 @@
   }
 
   .draw-toolbar{
-    position:absolute;
+    position:fixed;
     top:14px; left:50%;
     transform:translateX(-50%);
     display:none;
@@ -1067,6 +1072,74 @@
   function unitToCanvas(b, pt){ return { x: b.cx + pt.x*b.rx, y: b.cy + pt.y*b.ry }; }
   function canvasToUnit(b, x, y){ return { x: (x-b.cx)/b.rx, y: (y-b.cy)/b.ry }; }
 
+  // Removes anchor point `idx` from a pen-drawn shape (Ctrl+click on a point).
+  // The two edges touching the deleted point merge into one; that merged
+  // edge is reset to straight (nulled) since its old curve controls no
+  // longer make sense once the point between them is gone. Refuses to go
+  // below 3 points, since that's the minimum for a closed shape.
+  function deleteCustomPenPoint(b, idx){
+    const n = b.customPoints.length;
+    if (n <= 3) return;
+    b.customPoints.splice(idx, 1);
+    if (!b.customCurves) b.customCurves = new Array(b.customPoints.length).fill(null);
+    else {
+      b.customCurves.splice(idx, 1);
+      const prev = (idx - 1 + b.customCurves.length) % b.customCurves.length;
+      b.customCurves[prev] = null;
+    }
+  }
+
+  // Finds the point on a custom shape's outline closest to (x,y), sampling
+  // along every edge (straight or curved). Shared by the Shift-insert hover
+  // preview (drawHandles) and the actual insertion (insertCustomPenPoint),
+  // so the point that gets added always lands exactly where the preview
+  // dot showed it would.
+  function nearestOutlinePoint(b, x, y){
+    const n = b.customPoints.length;
+    if (n < 2) return null;
+    let best = null;
+    for (let i=0;i<n;i++){
+      const a = b.customPoints[i], c = b.customPoints[(i+1)%n];
+      const ax = b.cx+a.x*b.rx, ay = b.cy+a.y*b.ry;
+      const cx2 = b.cx+c.x*b.rx, cy2 = b.cy+c.y*b.ry;
+      const ctrlUnit = b.customCurves && b.customCurves[i];
+      const steps = 24;
+      for (let s=0;s<=steps;s++){
+        const t = s/steps;
+        let px, py;
+        if (ctrlUnit){
+          const qx = b.cx+ctrlUnit.x*b.rx, qy = b.cy+ctrlUnit.y*b.ry;
+          const mt = 1-t;
+          px = mt*mt*ax + 2*mt*t*qx + t*t*cx2;
+          py = mt*mt*ay + 2*mt*t*qy + t*t*cy2;
+        } else {
+          px = ax+(cx2-ax)*t; py = ay+(cy2-ay)*t;
+        }
+        const d = Math.hypot(px-x, py-y);
+        if (!best || d < best.dist){ best = { x:px, y:py, edge:i, dist:d }; }
+      }
+    }
+    return best;
+  }
+
+  // Adds a new anchor point on a custom shape (Shift+left-click), snapped
+  // to the nearest point on the outline (matching the hover-dot preview)
+  // and spliced into whichever edge that point falls on. Both edges
+  // resulting from the split start out straight (nulled) — predictable,
+  // and pen-drawn shapes can be re-bowed via the curve handle afterward.
+  function insertCustomPenPoint(b, x, y){
+    const n = b.customPoints.length;
+    if (n < 3) return;
+    const nearest = nearestOutlinePoint(b, x, y);
+    if (!nearest) return;
+    const insertIdx = nearest.edge+1;
+    b.customPoints.splice(insertIdx, 0, canvasToUnit(b, nearest.x, nearest.y));
+    if (!b.customCurves) b.customCurves = new Array(n).fill(null);
+    b.customCurves.splice(insertIdx, 0, null);
+    b.customCurves[nearest.edge] = null;
+  }
+
+
   function customPolygonPath(p, b){
     const n = b.customPoints.length;
     if (!n) return;
@@ -1341,6 +1414,82 @@
       const sel = selected();
       if (sel) drawHandles(sel);
     }
+    saveStateDebounced();
+  }
+
+  // --- Persistence (localStorage) ---------------------------------------
+  // Every parameter that defines the current session — bubbles and all
+  // their sliders/toggles, canvas size, export scale, background image —
+  // autosaves so a page refresh (or accidental close) doesn't lose work.
+  const STORAGE_KEY = 'bubbleMaker.state.v1';
+  let saveTimer = null;
+
+  function collectState(){
+    return {
+      bubbles,
+      selectedId,
+      uid,
+      canvasW: stage.width,
+      canvasH: stage.height,
+      exportScale,
+      bgOpacity,
+      bgVisible,
+      bgImageSrc: bgImage ? bgImage.src : null
+    };
+  }
+  function saveStateNow(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState()));
+    }catch(err){
+      // Most likely quota exceeded because of a large background image —
+      // retry once without it so the bubble work itself still persists.
+      try{
+        const s = collectState();
+        s.bgImageSrc = null;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      }catch(err2){
+        console.warn('Không thể lưu trạng thái:', err2);
+      }
+    }
+  }
+  function saveStateDebounced(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveStateNow, 400);
+  }
+  function loadState(){
+    let raw;
+    try{ raw = localStorage.getItem(STORAGE_KEY); }catch(e){ return false; }
+    if (!raw) return false;
+    let s;
+    try{ s = JSON.parse(raw); }catch(e){ return false; }
+    if (!s || !Array.isArray(s.bubbles) || !s.bubbles.length) return false;
+
+    bubbles = s.bubbles;
+    uid = typeof s.uid === 'number' ? s.uid : (bubbles.reduce((m,b)=>Math.max(m, Number(b.id)||0), 0)+1);
+    selectedId = (s.selectedId!=null && bubbles.some(b=>b.id===s.selectedId)) ? s.selectedId : bubbles[0].id;
+
+    if (s.canvasW) canvasWInput.value = s.canvasW;
+    if (s.canvasH) canvasHInput.value = s.canvasH;
+    applyCanvasSize();
+
+    exportScale = s.exportScale || 1;
+    document.querySelectorAll('.toggle-btn').forEach(btn=>{
+      btn.classList.toggle('active', Number(btn.dataset.scale) === exportScale);
+    });
+
+    bgOpacity = typeof s.bgOpacity === 'number' ? s.bgOpacity : 0.5;
+    bgVisible = s.bgVisible !== false;
+    rangeBgOpacity.value = Math.round(bgOpacity*100);
+    if (s.bgImageSrc){
+      const img = new Image();
+      img.onload = ()=>{ bgImage = img; updateBgUI(); render(); };
+      img.src = s.bgImageSrc;
+    }
+
+    renderList();
+    selectBubble(selectedId);
+    updateBgUI();
+    return true;
   }
 
   // Live preview while drawing a custom shape.
@@ -1427,16 +1576,49 @@
       const va = valleyAnchorPos(b);
       handleDot(va.x, va.y, '#ffd166', '#3a2a05');
     }
-    // pen-drawn shapes: draggable anchor points + one bend handle per edge
-    if (b.type==='custom' && b.customPen && b.customPoints){
+    // point-clicked and pen-drawn shapes: draggable anchor points (both
+    // modes support Ctrl-delete/Shift-insert editing); pen-drawn shapes
+    // additionally get one bend handle per edge. While Ctrl/Shift is held
+    // the anchors/outline switch color to signal which action a click will
+    // perform, and a hover dot previews exactly where a Shift-click will
+    // insert the new point.
+    if (b.type==='custom' && b.customPoints && !b.customSmooth){
       const n = b.customPoints.length;
-      for (let i=0;i<n;i++){
-        const c = penCurveHandlePos(b, i);
-        handleDot(c.x, c.y, '#60a5fa', '#122238');
+
+      // Shift-insert mode: trace the outline in blue so it reads as
+      // "clickable to add a point here".
+      if (shiftHeld){
+        const outlinePath = new Path2D();
+        customPolygonPath(outlinePath, b);
+        ctx.save();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 2.5;
+        ctx.stroke(outlinePath);
+        ctx.restore();
       }
+
+      if (b.customPen){
+        for (let i=0;i<n;i++){
+          const c = penCurveHandlePos(b, i);
+          handleDot(c.x, c.y, '#60a5fa', '#122238');
+        }
+      }
+
+      // Ctrl-delete mode: anchors turn red to signal "clickable to remove".
+      const anchorFill = ctrlHeld ? '#ff6b6b' : '#5eead4';
+      const anchorRing = ctrlHeld ? '#2a0d0d' : '#0c1413';
       for (let i=0;i<n;i++){
         const a = unitToCanvas(b, b.customPoints[i]);
-        handleDot(a.x, a.y, '#5eead4', '#0c1413');
+        handleDot(a.x, a.y, anchorFill, anchorRing);
+      }
+
+      // Hover dot: while Shift is held (point or pen mode alike), snap a
+      // marker to the nearest point on the outline so the user sees
+      // exactly where the new anchor will land before clicking.
+      if (shiftHeld && hoverPos){
+        const nearest = nearestOutlinePoint(b, hoverPos.x, hoverPos.y);
+        if (nearest) handleDot(nearest.x, nearest.y, '#60a5fa', '#0c2338');
       }
     }
     ctx.restore();
@@ -1463,6 +1645,23 @@
   // ---------- interaction ----------
   let drag = null; // {mode:'move'|'resize'|'tail', bubble}
 
+  // Live preview state for Ctrl/Shift point editing on custom shapes:
+  // ctrlHeld/shiftHeld mirror the modifier keys (tracked globally so the
+  // preview updates even before the mouse moves again), hoverPos is the
+  // last known canvas-space mouse position.
+  let ctrlHeld = false;
+  let shiftHeld = false;
+  let hoverPos = null;
+  function setModKeys(ctrl, shift){
+    if (ctrl===ctrlHeld && shift===shiftHeld) return;
+    ctrlHeld = ctrl; shiftHeld = shift;
+    const sel = selected();
+    if (!drawMode && sel && sel.type==='custom' && sel.customPoints && !sel.customSmooth) render();
+  }
+  window.addEventListener('keydown', (e)=>{ setModKeys(e.ctrlKey||e.metaKey, e.shiftKey); });
+  window.addEventListener('keyup', (e)=>{ setModKeys(e.ctrlKey||e.metaKey, e.shiftKey); });
+  window.addEventListener('blur', ()=>{ setModKeys(false, false); });
+
   function canvasCoords(e){
     const rect = stage.getBoundingClientRect();
     const scaleX = stage.width/rect.width;
@@ -1486,15 +1685,17 @@
       const va = valleyAnchorPos(b);
       if (Math.hypot(x-va.x, y-va.y) < HANDLE_R+6) return 'curve';
     }
-    if (b.type==='custom' && b.customPen && b.customPoints){
+    if (b.type==='custom' && b.customPoints && !b.customSmooth){
       const n = b.customPoints.length;
       for (let i=0;i<n;i++){
         const a = unitToCanvas(b, b.customPoints[i]);
         if (Math.hypot(x-a.x, y-a.y) < HANDLE_R+6) return 'penAnchor:'+i;
       }
-      for (let i=0;i<n;i++){
-        const c = penCurveHandlePos(b, i);
-        if (Math.hypot(x-c.x, y-c.y) < HANDLE_R+6) return 'penCurve:'+i;
+      if (b.customPen){
+        for (let i=0;i<n;i++){
+          const c = penCurveHandlePos(b, i);
+          if (Math.hypot(x-c.x, y-c.y) < HANDLE_R+6) return 'penCurve:'+i;
+        }
       }
     }
     if (Math.hypot(x-b.cx, y-b.cy) < HANDLE_R+6) return 'move';
@@ -1505,6 +1706,7 @@
     return (dx*dx+dy*dy) <= 1.15;
   }
 
+  stage.addEventListener('contextmenu', (e)=>{ e.preventDefault(); });
   stage.addEventListener('pointerdown', (e)=>{
     const {x,y} = canvasCoords(e);
     if (drawMode){
@@ -1525,6 +1727,27 @@
     }
     // check selected bubble handles first
     const sel = selected();
+
+    // Point editing on an already-drawn custom shape (point-clicked polygon
+    // or pen-drawn, but not freehand — its spline doesn't have discrete
+    // corners to edit): Ctrl+left-click on an anchor removes it;
+    // Shift+left-click on the outline adds a new corner there.
+    if (sel && sel.type==='custom' && sel.customPoints && !sel.customSmooth){
+      if (e.ctrlKey && e.button===0){
+        const h = hitHandle(sel, x, y);
+        if (h && h.startsWith('penAnchor:')){
+          deleteCustomPenPoint(sel, parseInt(h.slice(10),10));
+          render();
+        }
+        return;
+      }
+      if (e.shiftKey && e.button===0){
+        insertCustomPenPoint(sel, x, y);
+        render();
+        return;
+      }
+    }
+
     if (sel){
       const h = hitHandle(sel, x, y);
       if (h){
@@ -1564,8 +1787,18 @@
       render();
       return;
     }
-    if (!drag) return;
     const {x,y} = canvasCoords(e);
+    hoverPos = {x,y};
+    if (!drag){
+      // Not dragging: while Ctrl/Shift is held over an editable custom
+      // shape, keep redrawing so the red-anchor / blue-line + hover dot
+      // preview tracks the mouse in real time.
+      const sel = selected();
+      if (sel && sel.type==='custom' && sel.customPoints && !sel.customSmooth && (ctrlHeld || shiftHeld)){
+        render();
+      }
+      return;
+    }
     const b = drag.b;
     if (drag.mode==='move'){
       const dx = x-drag.startX, dy = y-drag.startY;
@@ -1634,7 +1867,21 @@
   function updateDrawUI(){
     const bar = document.getElementById('drawToolbar');
     if (bar) bar.style.display = drawMode ? 'flex' : 'none';
+    if (drawMode) positionDrawToolbar();
   }
+  // Fixed-position toolbar is pinned to the viewport, so it stays put while
+  // the canvas scrolls underneath it. Centered horizontally over .main
+  // (the scrollable work area, not the whole window, so the sidebar's
+  // width doesn't throw off the centering).
+  function positionDrawToolbar(){
+    const bar = document.getElementById('drawToolbar');
+    const mainEl = document.querySelector('.main');
+    if (!bar || !mainEl) return;
+    const r = mainEl.getBoundingClientRect();
+    bar.style.left = (r.left + r.width/2) + 'px';
+    bar.style.top = (r.top + 14) + 'px';
+  }
+  window.addEventListener('resize', ()=>{ if (drawMode) positionDrawToolbar(); });
 
   // Syncs the point/freehand/pen toggle buttons to drawInputMode without
   // touching any in-progress points (used on mode switch and when entering
@@ -1966,6 +2213,7 @@
     if (bubbles.length && !confirm('Xoá tất cả bóng thoại trên canvas?')) return;
     bubbles = []; selectedId = null;
     renderList(); render();
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   });
 
   // background reference image
@@ -2048,6 +2296,7 @@
       document.querySelectorAll('.toggle-btn').forEach(x=>x.classList.remove('active'));
       btn.classList.add('active');
       exportScale = Number(btn.dataset.scale);
+      saveStateDebounced();
     });
   });
 
@@ -2169,11 +2418,13 @@
     download(off, `bong-thoai-${Date.now()}.png`);
   });
 
-  // init with one bubble
-  const first = newBubble();
-  bubbles.push(first);
-  selectBubble(first.id);
+  // init: try restoring the last saved session; fall back to one fresh bubble
   applyCanvasSize();
+  if (!loadState()){
+    const first = newBubble();
+    bubbles.push(first);
+    selectBubble(first.id);
+  }
 })();
 </script>
 </body>
