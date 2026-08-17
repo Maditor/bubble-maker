@@ -1620,17 +1620,23 @@
   }
 
   function drawHandles(b){
+    if (showResizeHandles){
+      ctx.save();
+      ctx.setLineDash([5,4]);
+      ctx.strokeStyle = 'rgba(94,234,212,0.8)';
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(b.cx-b.rx, b.cy-b.ry, b.rx*2, b.ry*2);
+      ctx.setLineDash([]);
+      ctx.restore();
+      // edge resize handles: top/bottom control height, left/right control width
+      handleDot(b.cx, b.cy-b.ry, '#ffd166', '#3a2a05');
+      handleDot(b.cx, b.cy+b.ry, '#ffd166', '#3a2a05');
+      handleDot(b.cx-b.rx, b.cy, '#ffd166', '#3a2a05');
+      handleDot(b.cx+b.rx, b.cy, '#ffd166', '#3a2a05');
+    }
     ctx.save();
-    ctx.setLineDash([5,4]);
-    ctx.strokeStyle = 'rgba(94,234,212,0.8)';
-    ctx.lineWidth = 1.4;
-    ctx.strokeRect(b.cx-b.rx, b.cy-b.ry, b.rx*2, b.ry*2);
-    ctx.setLineDash([]);
-
     // center handle
     handleDot(b.cx, b.cy, '#5eead4', '#0c1413');
-    // resize handle (bottom-right)
-    handleDot(b.cx+b.rx, b.cy+b.ry, '#5eead4', '#0c1413');
     // tail handle
     if (tailActive(b) && (b.type==='oval' || b.type==='rect' || b.type==='cloud' || b.type==='custom')){
       handleDot(b.tailX, b.tailY, '#ff6b6b', '#2a0d0d');
@@ -1715,7 +1721,11 @@
   }
 
   // ---------- interaction ----------
-  let drag = null; // {mode:'move'|'resize'|'tail', bubble}
+  let drag = null; // {mode:'move'|'resizeT'|'resizeB'|'resizeL'|'resizeR'|'tail', bubble}
+  // Resize frame + edge handles are hidden by default (they'd otherwise sit
+  // on top of pen-tool curve/anchor points at the same spots). Ctrl+T toggles
+  // them on when the user actually wants to resize precisely.
+  let showResizeHandles = false;
 
   // Live preview state for Ctrl/Shift point editing on custom shapes:
   // ctrlHeld/shiftHeld mirror the modifier keys (tracked globally so the
@@ -1744,7 +1754,12 @@
   }
 
   function hitHandle(b, x, y){
-    if (Math.hypot(x-(b.cx+b.rx), y-(b.cy+b.ry)) < HANDLE_R+5) return 'resize';
+    if (showResizeHandles){
+      if (Math.hypot(x-b.cx, y-(b.cy-b.ry)) < HANDLE_R+5) return 'resizeT';
+      if (Math.hypot(x-b.cx, y-(b.cy+b.ry)) < HANDLE_R+5) return 'resizeB';
+      if (Math.hypot(x-(b.cx-b.rx), y-b.cy) < HANDLE_R+5) return 'resizeL';
+      if (Math.hypot(x-(b.cx+b.rx), y-b.cy) < HANDLE_R+5) return 'resizeR';
+    }
     if (tailActive(b) && (b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom') && Math.hypot(x-b.tailX, y-b.tailY) < HANDLE_R+6) return 'tail';
     if (tailActive(b) && (b.type==='oval'||b.type==='rect'||b.type==='cloud'||b.type==='custom')){
       if (Math.hypot(x-b.tailBaseX, y-b.tailBaseY) < HANDLE_R+6) return 'tailBase';
@@ -1885,9 +1900,25 @@
       }
       b.cx = drag.ox + moveX;
       b.cy = drag.oy + moveY;
-    } else if (drag.mode==='resize'){
-      b.rx = Math.max(20, x-b.cx);
-      b.ry = Math.max(20, y-b.cy);
+    } else if (drag.mode==='resizeT'){
+      const bottomEdge = b.cy + b.ry;
+      b.ry = Math.max(20, (bottomEdge - y)/2);
+      b.cy = bottomEdge - b.ry;
+      syncRangeInputs(b);
+    } else if (drag.mode==='resizeB'){
+      const topEdge = b.cy - b.ry;
+      b.ry = Math.max(20, (y - topEdge)/2);
+      b.cy = topEdge + b.ry;
+      syncRangeInputs(b);
+    } else if (drag.mode==='resizeL'){
+      const rightEdge = b.cx + b.rx;
+      b.rx = Math.max(20, (rightEdge - x)/2);
+      b.cx = rightEdge - b.rx;
+      syncRangeInputs(b);
+    } else if (drag.mode==='resizeR'){
+      const leftEdge = b.cx - b.rx;
+      b.rx = Math.max(20, (x - leftEdge)/2);
+      b.cx = leftEdge + b.rx;
       syncRangeInputs(b);
     } else if (drag.mode==='tail'){
       b.tailX = x; b.tailY = y;
@@ -1934,6 +1965,15 @@
     if (!drawMode) return;
     if (e.key === 'Enter'){ e.preventDefault(); finishDraw(false); }
     else if (e.key === 'Escape'){ e.preventDefault(); finishDraw(true); }
+  });
+  window.addEventListener('keydown', (e)=>{
+    if (e.key === 't' || e.key === 'T'){
+      const tag = (e.target && e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
+      e.preventDefault();
+      showResizeHandles = !showResizeHandles;
+      render();
+    }
   });
 
   function updateDrawUI(){
